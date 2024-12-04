@@ -21,6 +21,6 @@ def calculate_lpips_score(image1path, image2path):
     lpips_score = lpips_func(image1, image2)
     print(f"LPIPS score: {lpips_score}")
 
-    return lpips_score_score
+    return lpips_score
 
 

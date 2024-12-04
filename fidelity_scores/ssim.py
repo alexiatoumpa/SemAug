@@ -1,5 +1,6 @@
 """
 Computation of the Structural Similarity Index (SSIM) between two RGB images.
+SSIM values are between -1 and 1. A value closer to 1 indicates high similarity.
 """
 
 from PIL import Image

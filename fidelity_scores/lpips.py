@@ -7,7 +7,7 @@ from PIL import Image
 import lpips
 import torch
 
-def calculate_ssim_score(image1path, image2path):
+def calculate_lpips_score(image1path, image2path):
     # load images
     image1 = Image.open(image1path).convert("RGB")
     image2 = Image.open(image2path).convert("RGB")

@@ -1,9 +1,8 @@
 from augmentation.Masking import *
 from augmentation.InpaintingDifussionModel import Inpainting
-# from Realism_measures.SSIM import * ##
-# from Realism_measures.FID import * ##
 from nlp.Caption_Enrichement_NLP import caption_category, change_caption
 from fidelity_scores.fid import calculate_fid_score
+from fidelity_scores.ssim import calculate_ssim_score
 
 # import re
 from timm.data.random_erasing import RandomErasing
@@ -15,6 +14,7 @@ import urllib.request
 import urllib
 import cv2
 import os
+import spacy
 from tqdm import tqdm
 import numpy as np
 from pathlib import Path
@@ -33,36 +33,6 @@ def get_caption(label,category):
     Initial_caption = category[label]
     Initial_caption = Initial_caption
     return Initial_caption
-
-
-def get_scores(ini_path,inpaint_path,height, width):
-    load_images = lambda x: np.asarray(Image.open(x).resize((height, width)))
-    # Helper functions to convert to Tensors
-    tensorify = lambda x: torch.Tensor(x.transpose((2, 0, 1))).unsqueeze(0).float().div(255.0)
-    img_ini = load_images(ini_path)
-    Aug_Img = load_images(inpaint_path)
-    #######################
-    _img_ini = image_channel(img_ini)
-    _Aug_Img = image_channel(Aug_Img)
-    #######################
-    _img = tensorify(_img_ini)
-    _img_aug = tensorify(_Aug_Img)
-    img = Image.open(ini_path)
-    img_initial = rescale_image(img)
-    aug_img = rescale_image(Aug_Img)
-    # print("the high and width \n")
-    # print(img_initial.shape, aug_img.shape)
-    fid_inpainting = FID(img_initial, aug_img)
-    #  higher score indicates a lower-quality image and the relationship may be linear.
-    print('Augmented vs original Image FID Score:: %.3f' % fid_inpainting)
-
-    _img = _img
-    _imgP = _img_aug
-    # print("the SSIM high and width \n")
-    # print(_img.shape, _imgP.shape)
-    SSIM_inpaint = ssim(_img, _imgP, val_range=255)
-    print("Augmented vs original Image SSIM Score:", SSIM_inpaint.item())
-    return SSIM_inpaint.item(), fid_inpainting,
 
 
 # def augment_from_folder(seed_size,approach, directory_aug_data, folder_dir, categories,ImgsIds, categories_keys):
@@ -184,33 +154,32 @@ def get_scores(ini_path,inpaint_path,height, width):
 
 
 # '''
-# augment_coco_imgs works perfectly and rely on mask rnn to create masks !
+# augment_coco_images works perfectly and rely on mask rnn to create masks !
 # '''
-# def augment_coco_imgs(seed_size, approach, directory_aug_data):
+# def augment_coco_images(seed_size=42, data_directory_path='./', dataset_path='./'):
 #     results = []
 #     images = []
 #     nlp = spacy.load("en_core_web_sm")
-#     datapath = "./data/Initial/annotations/instances_train2017.json"
-#     KeyObjFile = "./data/Initial/annotations/person_keypoints_train2017.json"
-#     CaptionFile = "./data/Initial/annotations/captions_train2017.json"
-#     cat = 'dog'
-#     subcat = 'person'
+#     datapath = dataset_path + "/annotations/instances_train2017.json"
+#     KeyObjFile = dataset_path + "/annotations/person_keypoints_train2017.json"
+#     CaptionFile = dataset_path + "/annotations/captions_train2017.json"
+#     category = 'dog'
+#     subcategory = 'person'
 #     rep = 'panda'
-#     filterClasses3 = [cat, subcat]
-#     pre = Datapipline(datapath, KeyObjFile, CaptionFile)
+#     filterClasses3 = [category, subcategory]
+#     pre = Datapipline(datapath, KeyObjFile, CaptionFile) ##??
 #     maincategories, subcategories = pre.load_cat_info()
 #     Initial_seed_Set, Initial_seed_Ids = pre.select_subCatg(filterClasses3)
 #     next_pix = Initial_seed_Set
 #     ran.shuffle(next_pix)
 #     coco_kps = pre.KObj
 #     coco_caps = pre.Caps
+
 #     # Load_images_with keypoints objects and captions
 #     for i, img_path in enumerate(next_pix[0:seed_size]):
 #         img = pre.coco.loadImgs(img_path)[0]
 #         id = str(img['id'])
-#         # if id in ['518951','77709']:
-#         #     continue
-#         # else:
+ 
 #         if len(img.shape) != 3:
 #             print("shape")
 #             print(img.shape)
@@ -218,22 +187,22 @@ def get_scores(ini_path,inpaint_path,height, width):
 #         else:
 #             I = io.imread(img['coco_url'])
 
-#             ini_path = os.path.join(directory_aug_data, "Initial2/I_" + id + ".jpeg")
-#             mask_path = os.path.join(directory_aug_data, "masks/M_" + id + ".jpeg")
-#             erase_path = os.path.join(directory_aug_data, "erase/E_" + id + ".jpeg")
-#             noise_path = os.path.join(directory_aug_data, "noise/N_" + id + ".jpeg")
+#             ini_path = os.path.join(data_directory_path, "Initial2/I_" + id + ".jpeg")
+#             mask_path = os.path.join(data_directory_path, "masks/M_" + id + ".jpeg")
+#             erase_path = os.path.join(data_directory_path, "erase/E_" + id + ".jpeg")
+#             noise_path = os.path.join(data_directory_path, "noise/N_" + id + ".jpeg")
 #             img_pil = PIL.Image.open(urllib.request.urlopen(img['coco_url']))
 #             annIds = coco_kps.getAnnIds(imgIds=img['id'], catIds=Initial_seed_Ids, iscrowd=None)
 #             anns = coco_kps.loadAnns(annIds)
 
 #             CaptionIds = coco_caps.getAnnIds(imgIds=img['id'])
 #             caption = coco_caps.loadAnns(CaptionIds)
-#             if cat not in str(caption[0]['caption']).lower():
+#             if category not in str(caption[0]['caption']).lower():
 #                 continue
 #             else:
 #                 Initial_caption = caption[0]['caption']
 #                 plt.imsave(ini_path, I)
-#                 aug_caption_Category = caption_category(nlp, Initial_caption, cat, subcat, rep)
+#                 aug_caption_Category = caption_category(nlp, Initial_caption, category, subcategory, rep)
 #                 """
 #                     Augmentation process
 #                 """
@@ -251,7 +220,7 @@ def get_scores(ini_path,inpaint_path,height, width):
 #                     Aug_Img = Aug_Imgs[0]
 #                     plt.imshow(Aug_Img)
 #                     plt.axis('off')
-#                     inpaint_path = os.path.join(directory_aug_data,"Inpaint/In_" + id + ".jpeg")
+#                     inpaint_path = os.path.join(data_directory_path,"Inpaint/In_" + id + ".jpeg")
 #                     plt.savefig(inpaint_path)
 #                     clip_score = p_get_clip_score(Aug_Img, Initial_caption, aug_caption_Category)
 #                     if clip_score < 70:
@@ -292,36 +261,60 @@ def get_scores(ini_path,inpaint_path,height, width):
 #     return results,images
 
 
-def getClassName(classID, cats):
-    for i in range(len(cats)):
-        if cats[i]['id'] == classID:
-            return cats[i]['name']
-    return "None"
+# def getClassName(classID, cats):
+#     for i in range(len(cats)):
+#         if cats[i]['id'] == classID:
+#             return cats[i]['name']
+#     return "None"
 
 
-def augment_CIFAR_imgs(x_test, y_test, seed_size=42, data_directory_path='./', categories=[]):
+def create_aug_data_directories(data_directory_path='./', subdir=["Mask", "Inpainting", 
+    "Erasing", "Noise"]):
+
+    aug_subdir_paths = []
+    if isinstance(subdir, list):
+        for d in subdir:
+            path_ = os.path.join(data_directory_path, d)
+            if not os.path.exists(path_):
+                os.mkdir(path_)
+            aug_subdir_paths.append(path_)
+    elif isinstance(data_directory_path, list):
+        for d in data_directory_path:
+            path_ = os.path.join(d, subdir)
+            if not os.path.exists(path_):
+                os.mkdir(path_)
+            aug_subdir_paths.append(path_)   
+    return aug_subdir_paths
+
+
+def create_mask_image(image=None, mask_img_path='./'):
+    Masking = Create_Mask(image, mask_img_path)
+    W_mask = Masking.get_mask()
+    mask = cv2.cvtColor(W_mask, cv2.COLOR_BGR2RGB)
+    # plt.imshow(mask)
+    cv2.imwrite(mask_img_path, mask)
+    return
+
+
+def create_inpaint_image(image_path='./', mask_path='./', caption='cat', inpaint_image_path='./'):
+    inpainted_images = Inpainting(image_path, mask_path, caption)
+    inpaint_image = inpainted_images[0]
+    # plt.imshow(inpaint_image)
+    # plt.axis('off')       
+    inpaint_image = np.array(inpaint_image)
+    # inpaint_image = cv2.resize(inpaint_image, (height, width))
+    cv2.imwrite(inpaint_image_path, inpaint_image)
+    return
+
+
+def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./', categories=[]):
     scores = []
     images = []
-    augmented_data = {}
 
-    # aug_mask_path = "./data/cifar/Augmented/Mask/"
-    aug_mask_path = os.path.join(data_directory_path, "Mask")
-    if not os.path.exists(aug_mask_path):
-        os.mkdir(aug_mask_path)
-    # aug_inpaint_path = "./data/cifar/Augmented/Inpainting/"
-    aug_inpaint_path = os.path.join(data_directory_path, "Inpainting")
-    if not os.path.exists(aug_inpaint_path):
-        os.mkdir(aug_inpaint_path)
-    # aug_erase_path = "./data/cifar/Augmented/Erasing/"
-    aug_erase_path = os.path.join(data_directory_path, "Erasing")
-    if not os.path.exists(aug_erase_path):
-        os.mkdir(aug_erase_path)
-    # augmented_path_noise = "./data/cifar/Augmented/Noise/"
-    aug_noise_path = os.path.join(data_directory_path, "Noise")
-    if not os.path.exists(aug_noise_path):
-        os.mkdir(aug_noise_path)
+    [aug_mask_path, aug_inpaint_path, aug_erase_path, aug_noise_path] = \
+        create_aug_data_directories(data_directory_path=data_directory_path,
+                                    subdir=["Mask", "Inpainting", "Erasing", "Noise"])
     
- 
     id = 100
     for features, label in zip(x_test[:seed_size], y_test[:seed_size]):
         id += 1
@@ -338,59 +331,42 @@ def augment_CIFAR_imgs(x_test, y_test, seed_size=42, data_directory_path='./', c
         initial_image = features
         cv2.imwrite(initial_image_path, initial_image)
         print("label", np.argmax(label))
-        plt.imshow(features)
-        plt.savefig(initial_image_path)
-        cv2.imwrite(initial_image_path, initial_image)
+        # plt.imshow(features)
+        # plt.savefig(initial_image_path)
 
         # create mask
         aug_mask_image_path = os.path.join(aug_mask_path, str(id) + ".jpg")
-        Masking = Create_Mask(initial_image, aug_mask_image_path)
-        W_mask = Masking.get_mask()
-        mask = cv2.cvtColor(W_mask, cv2.COLOR_BGR2RGB)
-        plt.imshow(mask)
-        cv2.imwrite(aug_mask_image_path, mask)
-        print("saved mask")
+        create_mask_image(image=initial_image, mask_img_path=aug_mask_image_path)
 
         initial_caption = get_caption(label[0], categories)
         print("Initial caption: ", initial_caption)
         rep = 0 ## TO CHECK: this doesn't increase
         subcategory = ''
+
         # parse through all the categories to create an augmentation image
         for category in categories:
             if category != initial_caption:
                 print("Category: ", category)
                 # create the directories for each category
-                aug_inpaint_categ_path = os.path.join(aug_inpaint_path, category)
-                if not os.path.exists(aug_inpaint_categ_path):
-                    os.mkdir(aug_inpaint_categ_path)
-                aug_erase_categ_path = os.path.join(aug_erase_path, category)
-                if not os.path.exists(aug_erase_categ_path):
-                    os.mkdir(aug_erase_categ_path)
-                aug_noise_categ_path = os.path.join(aug_noise_path, category)
-                if not os.path.exists(aug_noise_categ_path):
-                    os.mkdir(aug_noise_categ_path)
+                [aug_inpaint_categ_path, aug_erase_categ_path, aug_noise_categ_path] = \
+                    create_aug_data_directories(data_directory_path=[aug_inpaint_path, 
+                                                                     aug_erase_path, 
+                                                                     aug_noise_path], 
+                                                subdir=category)
 
                 # create new caption for the specific category
                 aug_caption_category = caption_category(initial_caption, category, subcategory)
                 
                 # Inpainting
-                inpainted_images = Inpainting(initial_image_path, aug_mask_image_path, aug_caption_category)
-                inpaint_image = inpainted_images[0]
-                plt.imshow(inpaint_image)
-                plt.axis('off')
                 aug_inpaint_categ_image_path = os.path.join(aug_inpaint_categ_path, str(rep) + str(id) + ".jpg")
-
-                inpaint_image = np.array(inpaint_image)
-                inpaint_image = cv2.resize(inpaint_image, (height, width))
-                cv2.imwrite(aug_inpaint_categ_image_path, inpaint_image)
-                # clip_score = p_get_clip_score(inpaint_image, initial_caption, aug_caption_category) ##
-                # print("the threshold score", clip_score.item()) ##
+                create_inpaint_image(image_path=initial_image_path, mask_path=aug_mask_image_path, 
+                                     caption=aug_caption_category, inpaint_image_path=aug_inpaint_categ_image_path)
 
                 # Erase
                 random_erase = RandomErasing(probability=1, mode='pixel', device='cpu')
                 erased_image = random_erase(imageT).permute(1, -1, 0)
                 plt.imshow(np.squeeze(erased_image))
-                plt.axis('off')
+                # plt.axis('off')
                 
                 aug_erase_categ_image_path = os.path.join(aug_erase_categ_path, str(rep) + str(id) + ".jpg")
                 plt.savefig(aug_erase_categ_image_path)
@@ -400,41 +376,30 @@ def augment_CIFAR_imgs(x_test, y_test, seed_size=42, data_directory_path='./', c
                 gaussian_noise = np.random.normal(mean, std, image.shape)
                 image = image.astype("int16")
                 noise_image = image + gaussian_noise
-                noise_image = cv2.resize(noise_image, (height, width))
-                plt.imshow(noise_image)
+                # noise_image = cv2.resize(noise_image, (height, width))
+                # plt.imshow(noise_image)
                 
                 aug_noise_categ_image_path = os.path.join(aug_noise_categ_path, str(rep) + str(id) + ".jpg")
                 plt.imsave(aug_noise_categ_image_path, noise_image)
                 # cv2.imwrite(aug_noise_categ_image_path, noise_image)
 
-                # Calculate fidelity scores
-                # SSIM_N, FID_Noise = get_scores(initial_image_path, noise_path, height, width)
-                # SSIM_inpaint, FID_inpainting = get_scores(initial_image_path, inpaint_path, height, width)
-                # SSIM_E, FID_Erase = get_scores(initial_image_path, erase_path, height, width)
-                # scores.append([str(id), SSIM_inpaint, SSIM_E, FID_inpainting, FID_Erase, SSIM_N, FID_Noise,
-                #               clip_score.item()])
+                # Calculate fidelity scores:
+                # FID
                 FID_noise = calculate_fid_score(initial_image_path, aug_noise_categ_image_path)
                 FID_inpaint = calculate_fid_score(initial_image_path, aug_inpaint_categ_image_path)
                 FID_erase = calculate_fid_score(initial_image_path, aug_erase_categ_image_path)
+                # SSIM
+                SSIM_noise = calculate_ssim_score(initial_image_path, aug_noise_categ_image_path)
+                SSIM_inpaint = calculate_ssim_score(initial_image_path, aug_inpaint_categ_image_path)
+                SSIM_erase = calculate_ssim_score(initial_image_path, aug_erase_categ_image_path)
 
-                scores.append([str(id), FID_inpainting, FID_Erase, FID_Noise])
+                scores.append([str(id), FID_inpainting, SSIM_inpaint, FID_erase, SSIM_erase, FID_noise, SSIM_noise])
 
                 images.append([str(id), initial_caption, aug_caption_category, 
                     initial_image_path, aug_inpaint_categ_image_path, 
                     aug_erase_categ_image_path, aug_noise_categ_image_path, 
                     label, category])
 
-                # augmented_data[id] = {'caption': initial_caption,
-                #                       'augmented_caption': aug_caption_category,
-                #                       'category': category,
-                #                       'label': label,
-                #                       'image_path': initial_image_path,
-                #                       'mask_path': aug_mask_image_path,
-                #                       'inpaint_image_path': aug_inpaint_categ_image_path,
-                #                       'erase_image_path': aug_erase_categ_image_path,
-                #                       'noise_image_path': aug_noise_categ_image_path,
-                #                       'scores': None
-                #                       }
     return images, scores
 
 

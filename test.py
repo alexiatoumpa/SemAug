@@ -1,5 +1,5 @@
 from augmentation.InpaintingDifussionModel import Inpainting
-from process import augment_CIFAR_imgs
+from process import augment_cifar_images
 # from Realism_measures.SSIM import *
 # from Realism_measures.FID import *
 from nlp.Caption_Enrichement_NLP import *
@@ -115,9 +115,9 @@ if __name__ == "__main__":
     # Load dataset
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
     # Create augmented data
-    results, images = augment_CIFAR_imgs(np.array([x_test[0]]), np.array([y_test[0]]), 
-                                        seed_size=seed_size, data_directory_path=data_directory_path, 
-                                        categories=categories)
+    results, images = augment_cifar_images(np.array([x_test[0]]), np.array([y_test[0]]), 
+                                           seed_size=seed_size, data_directory_path=data_directory_path, 
+                                           categories=categories)
 
     print("size of augmented data set:", len(results))
     with open('./results/' + file_name, 'w') as out_file:

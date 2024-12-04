@@ -412,8 +412,8 @@ def augment_CIFAR_imgs(x_test, y_test, seed_size=42, data_directory_path='./', c
                 # line = [str(id), SSIM_inpaint, SSIM_E, FID_inpainting, FID_Erase, SSIM_N, FID_Noise, ##
                 #         clip_score.item()] ##
                 # scores.append(line) ##
-                images.append([str(id), initial_caption, aug_caption_category, 
-                    initial_image_path, inpaint_path, erase_path, noise_path, label, category])
+                # images.append([str(id), initial_caption, aug_caption_category, 
+                #     initial_image_path, inpaint_path, erase_path, noise_path, label, category])
                 augmented_data[id] = {'caption': initial_caption,
                                       'augmented_caption': aug_caption_category,
                                       'category': category,

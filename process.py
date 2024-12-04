@@ -402,7 +402,7 @@ def augment_CIFAR_imgs(x_test, y_test, seed_size=42, data_directory_path='./', c
                 noise_image = cv2.resize(noise_image, (height, width))
                 plt.imshow(noise_image)
                 
-                aug_noise_categ_image_path = os.path.join(current_noisepath, str(rep) + str(id) + ".jpg")
+                aug_noise_categ_image_path = os.path.join(aug_noise_categ_path, str(rep) + str(id) + ".jpg")
                 plt.imsave(aug_noise_categ_image_path, noise_image)
 
                 # cv2.imwrite(noise_path, noise_img)

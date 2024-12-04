@@ -14,7 +14,7 @@ def preprocess_image(image, size=(299,299)):
                                     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                                          std=[0.229, 0.224, 0.225])
                                     ])
-    return tranform(image).unsqueeze(0)
+    return transform(image).unsqueeze(0)
 
 
 def calculate_fid_score(image1path, image2path):
@@ -31,7 +31,7 @@ def calculate_fid_score(image1path, image2path):
     image2 = preprocess_image(image2)
 
     with torch.no_grad():
-        feature1 = model(image1).nummpy().squeeze()
+        feature1 = model(image1).numpy().squeeze()
         feature2 = model(image2).numpy().squeeze()
 
     # image1 = np.array(image1)

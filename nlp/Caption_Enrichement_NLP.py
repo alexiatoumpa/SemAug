@@ -5,7 +5,7 @@ nltk.download('wordnet')
 nltk.download('omw-1.4')
 from nltk.corpus import wordnet
 
-taxonomy=['smile', 'wave','talk', 'sleep', 'sit','laught','jump', 'wear a mask']
+taxonomy=['smile', 'wave', 'talk', 'sleep', 'sit', 'laught', 'jump', 'wear a mask']
 
 
 def synonym_antonym_extractor(phrase):
@@ -26,27 +26,27 @@ def synonym_antonym_extractor(phrase):
     return set(synonyms), set(antonyms), token3
 
 
-def dismilar(nlp,tax, word1):
-    sim= {}
+def dissimilar(nlp, taxonomy, word1):
+    sim = {}
     word = nlp(word1)
-    token=''
+    token = ''
     for w in word:
         token = w
-    for t in tax:
+    for t in taxonomy:
         t = nlp(t)
-        sim_=token.similarity(t)
+        sim_ = token.similarity(t)
         print("Similarity:", sim_)
-        sim[t]=sim_
+        sim[t] = sim_
     sorted_ = sorted(sim.items(), key=lambda x: x[1])
 
     print(sorted_)
-    dis=min(sim, key=sim.get)
-    print(dis)
+    dissimilarity = min(sim, key=sim.get)
+    print(dissimilarity)
 
-    return dis
+    return dissimilarity
 
 
-def Augment_caption(nlp,taxonomy,sentence):
+def augment_caption(nlp, taxonomy, sentence):
     doc = nlp(sentence)
     wordtoreplace = {}
     for token in doc:
@@ -56,55 +56,55 @@ def Augment_caption(nlp,taxonomy,sentence):
     for word in wordtoreplace:
         print(wordtoreplace[word])
 
-        rep = dismilar(nlp,taxonomy, wordtoreplace[word])
-        ini_=wordtoreplace[word]
-        rep=rep.text
-        sent = sentence.replace(ini_, rep)
+        rep = dissimilar(nlp, taxonomy, wordtoreplace[word])
+        ini_ = wordtoreplace[word]
+        rep = rep.text
+        newsentence = sentence.replace(ini_, rep)
 
-    return sent
+    return newsentence
 
 
-def Change_caption(nlp, caption, cat,subcat, rep):
+def change_caption(nlp, caption, category, subcategory, rep):
     sentence = str(caption)
     sentence = sentence.lower()
-    cat=cat.lower()
+    category = category.lower()
     doc = nlp(sentence)
 
     wordtoreplace = {}
-    new=''
+    newcaption = ''
     for token in doc:
-        if token.text == cat:
+        if token.text == category:
             toreplace = token.text
-            wordtoreplace[cat] = toreplace
-        elif token.text == subcat:
+            wordtoreplace[category] = toreplace
+        elif token.text == subcategory:
             toreplace = token.text
-            wordtoreplace[cat] = toreplace
+            wordtoreplace[category] = toreplace
 
     for word in wordtoreplace:
         ini_ = wordtoreplace[word]
         rep = str(rep)
-        new = sentence.replace(ini_, rep)
-    if new=='':
-        new='high-fidelity image of '+ sentence
+        newcaption = sentence.replace(ini_, rep)
+    if newcaption == '':
+        newcaption = 'high-fidelity image of ' + sentence
     else:
-        new='high-fidelity image of '+new
-    print(new)
-    return new
+        new = 'high-fidelity image of ' + newcaption
+    print(newcaption)
+    return newcaption
 
 
-def Caption_category(caption, cat, rep):
+def caption_category(caption, category, rep):
     sentence = str(caption)
     sentence = sentence.lower()
-    cat=cat.lower()
+    category = category.lower()
 
-    if sentence != cat:
-        new = cat+ rep
-    if new=='':
-        new='high-fidelity image of '+ cat
+    if sentence != category:
+        newcaption = category + rep
+    if newcaption == '':
+        newcaption = 'high-fidelity image of ' + category
     else:
-        new='high-fidelity image of '+new
+        newcaption = 'high-fidelity image of ' + newcaption
 
-    return new
+    return newcaption
 
     
 if __name__ == "__main__":
@@ -112,5 +112,5 @@ if __name__ == "__main__":
 
     nlp = spacy.load("en_core_web_sm")
     taxonomy = ['smiling', 'waving', 'talking', 'sleeping', 'siting', 'laughting', 'jumping', 'wearing a mask']
-    sent = Augment_caption(nlp, taxonomy,"the nurse is eating")
+    sent = augment_caption(nlp, taxonomy, "the nurse is eating")
     print(sent)

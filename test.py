@@ -1,9 +1,10 @@
 from augmentation.InpaintingDifussionModel import Inpainting
-from augmentation.process import augment_CIFAR_imgs
+from process import augment_CIFAR_imgs
 # from Realism_measures.SSIM import *
 # from Realism_measures.FID import *
 from nlp.Caption_Enrichement_NLP import *
 
+import numpy as np
 import torch
 from matplotlib import pyplot as plt
 from tensorflow.keras.datasets import cifar10
@@ -11,6 +12,7 @@ import csv
 import os
 import argparse
 from datetime import datetime
+import pdb
 
 
 
@@ -40,8 +42,6 @@ def parse_arguments():
                         type=int)
     parser.add_argument("-SS", "--seed_size", help="size of initial set of seed images.", 
                         type=int)
-    # parser.add_argument("-AugCap", "--Augmented_caption", help="the augmented image caption")
-
     parser.add_argument("-LOG", "--logfile", help="path to log file")
 
     args = parser.parse_args()
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     # caption = args['intial_caption'] if not args['intial_caption'] == None else 'a person'
     Augmented_caption = args['Augmented_caption'] if not args['Augmented_caption'] == None \
         else 'a person'
-    Seed_size = args['seed_size'] if not args['seed_size'] == None else 2
+    seed_size = args['seed_size'] if not args['seed_size'] == None else 2
     dataset = args['dataset'] if not args['dataset'] == None else 'cifar10'#'coco_animal'#['knw']
     # datatype = args['datatype'] if not args['datatype'] == None else 'cifar'
     logfile_name = args['logfile'] if args['logfile'] else 'DataAugment.log'
@@ -111,24 +111,30 @@ if __name__ == "__main__":
     print(dataset,"loading... ... ...")
     categories = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 
                   'horse', 'ship', 'truck']
-    directory_aug_data = "./data/cifar/Augmented/"
-    (X_train, y_train), (X_test, y_test) = cifar10.load_data()
-    results, images = augment_CIFAR_imgs(Seed_size, X_test, y_test, approach, 
-                                         directory_aug_data, categories)
+    data_directory_path = "./data/cifar/Augmented/"
+    # Load dataset
+    (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+    # Create augmented data
+    # results, images = augment_CIFAR_imgs(Seed_size, np.array([x_test[0]]), np.array([y_test[0]]), approach, 
+    #                                      directory_aug_data, categories)
+    augmented_data = augment_CIFAR_imgs(np.array([x_test[0]]), np.array([y_test[0]]), 
+                                        seed_size=seed_size, data_directory_path=data_directory_path, 
+                                        categories=categories)
+    # FIX: write augmented data in files
 
-    print("size of augmented data set:", len(results))
-    with open('./results/' + file_name, 'w') as out_file:
-        tsv_writer = csv.writer(out_file, delimiter='\t')
-        tsv_writer.writerow(entete_results)
-        for l in results:
-            tsv_writer.writerow(l)
-    with open('./results/' + file_images, 'w') as out_file:
-        tsv_writer = csv.writer(out_file, delimiter='\t')
-        tsv_writer.writerow(entete_imgs)
-        for l in images:
-            tsv_writer.writerow(l)
+    # print("size of augmented data set:", len(results))
+    # with open('./results/' + file_name, 'w') as out_file:
+    #     tsv_writer = csv.writer(out_file, delimiter='\t')
+    #     tsv_writer.writerow(entete_results)
+    #     for l in results:
+    #         tsv_writer.writerow(l)
+    # with open('./results/' + file_images, 'w') as out_file:
+    #     tsv_writer = csv.writer(out_file, delimiter='\t')
+    #     tsv_writer.writerow(entete_imgs)
+    #     for l in images:
+    #         tsv_writer.writerow(l)
 
-    print("saved csv")
+    # print("saved csv")
    
     print("--- %s seconds ---" % (datetime.now() - start_time))
 

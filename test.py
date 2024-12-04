@@ -115,26 +115,23 @@ if __name__ == "__main__":
     # Load dataset
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
     # Create augmented data
-    # results, images = augment_CIFAR_imgs(Seed_size, np.array([x_test[0]]), np.array([y_test[0]]), approach, 
-    #                                      directory_aug_data, categories)
-    augmented_data = augment_CIFAR_imgs(np.array([x_test[0]]), np.array([y_test[0]]), 
+    results, images = augment_CIFAR_imgs(np.array([x_test[0]]), np.array([y_test[0]]), 
                                         seed_size=seed_size, data_directory_path=data_directory_path, 
                                         categories=categories)
-    # FIX: write augmented data in files
 
-    # print("size of augmented data set:", len(results))
-    # with open('./results/' + file_name, 'w') as out_file:
-    #     tsv_writer = csv.writer(out_file, delimiter='\t')
-    #     tsv_writer.writerow(entete_results)
-    #     for l in results:
-    #         tsv_writer.writerow(l)
-    # with open('./results/' + file_images, 'w') as out_file:
-    #     tsv_writer = csv.writer(out_file, delimiter='\t')
-    #     tsv_writer.writerow(entete_imgs)
-    #     for l in images:
-    #         tsv_writer.writerow(l)
+    print("size of augmented data set:", len(results))
+    with open('./results/' + file_name, 'w') as out_file:
+        tsv_writer = csv.writer(out_file, delimiter='\t')
+        tsv_writer.writerow(entete_results)
+        for l in results:
+            tsv_writer.writerow(l)
+    with open('./results/' + file_images, 'w') as out_file:
+        tsv_writer = csv.writer(out_file, delimiter='\t')
+        tsv_writer.writerow(entete_imgs)
+        for l in images:
+            tsv_writer.writerow(l)
 
-    # print("saved csv")
+    print("saved csv")
    
     print("--- %s seconds ---" % (datetime.now() - start_time))
 

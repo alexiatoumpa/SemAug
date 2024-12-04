@@ -3,7 +3,7 @@ Computation of the Frechet Inception Distance (FID) between two RGB images.
 """
 
 from PIL import Image
-import nummpy as np
+import numpy as np
 from scipy.linalg import sqrtm
 
 def calculate_fid_score(image1path, image2path):

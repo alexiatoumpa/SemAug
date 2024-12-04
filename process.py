@@ -3,6 +3,7 @@ from augmentation.InpaintingDifussionModel import Inpainting
 # from Realism_measures.SSIM import * ##
 # from Realism_measures.FID import * ##
 from nlp.Caption_Enrichement_NLP import caption_category, change_caption
+from fidelity_scores.fid import calculate_fid_score
 
 # import re
 from timm.data.random_erasing import RandomErasing
@@ -404,27 +405,36 @@ def augment_CIFAR_imgs(x_test, y_test, seed_size=42, data_directory_path='./', c
                 
                 aug_noise_categ_image_path = os.path.join(aug_noise_categ_path, str(rep) + str(id) + ".jpg")
                 plt.imsave(aug_noise_categ_image_path, noise_image)
+                # cv2.imwrite(aug_noise_categ_image_path, noise_image)
 
-                # cv2.imwrite(noise_path, noise_img)
-                # SSIM_N, FID_Noise = get_scores(initial_image_path, noise_path, height, width) ##
-                # SSIM_inpaint, FID_inpainting = get_scores(initial_image_path, inpaint_path, height, width) ##
-                # SSIM_E, FID_Erase = get_scores(initial_image_path, erase_path, height, width) ##
-                # line = [str(id), SSIM_inpaint, SSIM_E, FID_inpainting, FID_Erase, SSIM_N, FID_Noise, ##
-                #         clip_score.item()] ##
-                # scores.append(line) ##
-                # images.append([str(id), initial_caption, aug_caption_category, 
-                #     initial_image_path, inpaint_path, erase_path, noise_path, label, category])
-                augmented_data[id] = {'caption': initial_caption,
-                                      'augmented_caption': aug_caption_category,
-                                      'category': category,
-                                      'label': label,
-                                      'image_path': initial_image_path,
-                                      'mask_path': aug_mask_image_path,
-                                      'inpaint_image_path': aug_inpaint_categ_image_path,
-                                      'erase_image_path': aug_erase_categ_image_path,
-                                      'noise_image_path': aug_noise_categ_image_path,
-                                      'scores': None
-                                      }
-    return augmented_data
+                # Calculate fidelity scores
+                # SSIM_N, FID_Noise = get_scores(initial_image_path, noise_path, height, width)
+                # SSIM_inpaint, FID_inpainting = get_scores(initial_image_path, inpaint_path, height, width)
+                # SSIM_E, FID_Erase = get_scores(initial_image_path, erase_path, height, width)
+                # scores.append([str(id), SSIM_inpaint, SSIM_E, FID_inpainting, FID_Erase, SSIM_N, FID_Noise,
+                #               clip_score.item()])
+                FID_noise = calculate_fid_score(initial_image_path, aug_noise_categ_image_path)
+                FID_inpaint = calculate_fid_score(initial_image_path, aug_inpaint_categ_image_path)
+                FID_erase = calculate_fid_score(initial_image_path, aug_erase_categ_image_path)
+
+                scores.append([str(id), FID_inpainting, FID_Erase, FID_Noise])
+
+                images.append([str(id), initial_caption, aug_caption_category, 
+                    initial_image_path, aug_inpaint_categ_image_path, 
+                    aug_erase_categ_image_path, aug_noise_categ_image_path, 
+                    label, category])
+
+                # augmented_data[id] = {'caption': initial_caption,
+                #                       'augmented_caption': aug_caption_category,
+                #                       'category': category,
+                #                       'label': label,
+                #                       'image_path': initial_image_path,
+                #                       'mask_path': aug_mask_image_path,
+                #                       'inpaint_image_path': aug_inpaint_categ_image_path,
+                #                       'erase_image_path': aug_erase_categ_image_path,
+                #                       'noise_image_path': aug_noise_categ_image_path,
+                #                       'scores': None
+                #                       }
+    return images, scores
 
 

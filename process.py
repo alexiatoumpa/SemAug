@@ -3,6 +3,7 @@ from augmentation.InpaintingDifussionModel import Inpainting
 from nlp.Caption_Enrichement_NLP import caption_category, change_caption
 from fidelity_scores.fid import calculate_fid_score
 from fidelity_scores.ssim import calculate_ssim_score
+from fidelity_scores.mse import calculate_mse_score
 
 # import re
 from timm.data.random_erasing import RandomErasing
@@ -392,8 +393,16 @@ def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./',
                 SSIM_noise = calculate_ssim_score(initial_image_path, aug_noise_categ_image_path)
                 SSIM_inpaint = calculate_ssim_score(initial_image_path, aug_inpaint_categ_image_path)
                 SSIM_erase = calculate_ssim_score(initial_image_path, aug_erase_categ_image_path)
+                # LPIPS
+                # MSE
+                MSE_noise = calculate_mse_score(initial_image_path, aug_noise_categ_image_path)
+                MSE_inpaint = calculate_mse_score(initial_image_path, aug_inpaint_categ_image_path)
+                MSE_erase = calculate_mse_score(initial_image_path, aug_erase_categ_image_path)
 
-                scores.append([str(id), FID_inpainting, SSIM_inpaint, FID_erase, SSIM_erase, FID_noise, SSIM_noise])
+                scores.append([str(id), 
+                               FID_inpaint, SSIM_inpaint, MSE_inpaint, 
+                               FID_erase, SSIM_erase, MSE_erase, 
+                               FID_noise, SSIM_noise, MSE_noise])
 
                 images.append([str(id), initial_caption, aug_caption_category, 
                     initial_image_path, aug_inpaint_categ_image_path, 

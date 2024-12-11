@@ -16,7 +16,7 @@ def normalize_image(image):
     return image
 
 
-def calculate_lpips_score(image1path, image2path):
+def calculate_lpips_score(image1path, image2path, net='alex'):
     # load images
     image1 = Image.open(image1path).convert("RGB")
     image2 = Image.open(image2path).convert("RGB")
@@ -29,13 +29,13 @@ def calculate_lpips_score(image1path, image2path):
     image2 = normalize_image(image2)
 
     # initialize the lpips function
-    lpips_func = lpips.LPIPS(net='alex') # net: 'alex', 'vgg', 'squeeze'
+    lpips_func = lpips.LPIPS(net=net) # net: 'alex', 'vgg', 'squeeze'
 
     # compute LPIPS score
     lpips_score = lpips_func(image1, image2)
     print(f"LPIPS score: {lpips_score}")
 
-    return lpips_score_score
+    return lpips_score
 
 
 

@@ -16,9 +16,9 @@ def calculate_vif_score(image1path, image2path):
 
     # compute VIF score
     vif_score = vifp(image1, image2)
-    print(f"VIFscore: {vif_score}")
+    print(f"VIF score: {vif_score}")
 
-    return psnr_score
+    return vif_score
 
 
 

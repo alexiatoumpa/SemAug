@@ -1,19 +1,9 @@
 """
-Computation of the Peak Signal-to-Noise Ratio (PSNR) between two 
-RGB images.
+Computation of the Peak Signal-to-Noise Ratio (PSNR) between two RGB images.
 """
 
 from PIL import Image
 import numpy as np
-
-def normalize_image(image):
-    image = image.astype(np.float32)
-    # normalize pixel values to [0,1]
-    image /= 255.0
-    # scale values to [-1,1]
-    image = image * 2 - 1
-    return image
-
 
 def calculate_psnr_score(image1path, image2path):
     # load images

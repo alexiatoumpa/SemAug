@@ -40,7 +40,6 @@ def calculate_fid_score(image1path, image2path):
     # image2 = np.squeeze(image2)
     # print(image1.shape, image2.shape) # (32, 32, 3)
     print(feature1.shape, feature2.shape)
-    pdb.set_trace()
 
     # compute mean and covariance for the two images
     mean1 = np.mean(feature1, axis=0)
@@ -50,10 +49,12 @@ def calculate_fid_score(image1path, image2path):
 
     # compute FID score
     mean_diff = np.sum(mean1-mean2) ** 2
-    cov_mean = sqrtm(cov1.dot(cov2))
+    # cov_mean = sqrtm(cov1.dot(cov2))
+    cov_mean = np.sqrt(cov1.dot(cov2))
     if np.iscomplexobj(cov_mean):
         cov_mean = cov_mean.real
-    fid_score = mean_diff + np.trace(cov1 + cov2 - 2 * cov_mean)
+    # fid_score = mean_diff + np.trace(cov1 + cov2 - 2 * cov_mean)
+    fid_score = mean_diff + (cov1 + cov2 - 2 * cov_mean)
     print(f"FID score: {fid_score}")
 
     return fid_score

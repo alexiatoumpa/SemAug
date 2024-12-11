@@ -12,9 +12,10 @@ def calculate_ssim_score(image1path, image2path):
     # load images
     image1 = Image.open(image1path).convert("RGB")
     image2 = Image.open(image2path).convert("RGB")
+    pdb.set_trace()
 
-    if image1.shape != image2.shape:
-        image2 = image2.resize(image1.shape, Image.ANTIALIAS)
+    if image1.size != image2.size:
+        image2 = image2.resize(image1.size, Image.LANCZOS)
 
     image1 = np.array(image1)
     image2 = np.array(image2)
@@ -22,7 +23,7 @@ def calculate_ssim_score(image1path, image2path):
     # compute the SSIM score for each channel of the image and then take the mean
     ssim_value = 0
     for c in range(image1.shape[-1]):
-        ssim_value += ssim(image1[:, :, c], image2[:, :, c], data_range=image2.max()-image2.min())
+        ssim_value += ssim(image1[:, :, c], image2[:, :, c], data_range=image2.max()-image2.min(), full=True)
     
     # compute SSIM score
     ssim_score = ssim_value / 3

@@ -4,6 +4,8 @@ from nlp.Caption_Enrichement_NLP import caption_category, change_caption
 from fidelity_scores.fid import calculate_fid_score
 from fidelity_scores.ssim import calculate_ssim_score
 from fidelity_scores.mse import calculate_mse_score
+from fidelity_scores.lpips import calculate_lpips_score
+from fidelity_scores.psnr import calculate_psnr_score
 
 # import re
 from timm.data.random_erasing import RandomErasing
@@ -386,23 +388,38 @@ def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./',
 
                 # Calculate fidelity scores:
                 # FID
-                FID_noise = calculate_fid_score(initial_image_path, aug_noise_categ_image_path)
                 FID_inpaint = calculate_fid_score(initial_image_path, aug_inpaint_categ_image_path)
                 FID_erase = calculate_fid_score(initial_image_path, aug_erase_categ_image_path)
+                FID_noise = calculate_fid_score(initial_image_path, aug_noise_categ_image_path)
                 # SSIM
-                SSIM_noise = calculate_ssim_score(initial_image_path, aug_noise_categ_image_path)
                 SSIM_inpaint = calculate_ssim_score(initial_image_path, aug_inpaint_categ_image_path)
                 SSIM_erase = calculate_ssim_score(initial_image_path, aug_erase_categ_image_path)
-                # LPIPS
+                SSIM_noise = calculate_ssim_score(initial_image_path, aug_noise_categ_image_path)
+                # LPIPS AlexNet
+                LPIPS_inpaint_alex = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='alex')
+                LPIPS_erase_alex = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='alex')
+                LPIPS_noise_alex = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='alex')
+                # LPIPS VGG
+                LPIPS_inpaint_vgg = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='vgg')
+                LPIPS_erase_vgg = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='vgg')
+                LPIPS_noise_vgg = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='vgg')
+                # LPIPS squeeze
+                LPIPS_inpaint_sq = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='squeeze')
+                LPIPS_erase_sq = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='squeeze')
+                LPIPS_noise_sq = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='squeeze')
                 # MSE
-                MSE_noise = calculate_mse_score(initial_image_path, aug_noise_categ_image_path)
                 MSE_inpaint = calculate_mse_score(initial_image_path, aug_inpaint_categ_image_path)
                 MSE_erase = calculate_mse_score(initial_image_path, aug_erase_categ_image_path)
+                MSE_noise = calculate_mse_score(initial_image_path, aug_noise_categ_image_path)
+                # PSNR
+                PSNR_inpaint = calculate_psnr_score(initial_image_path, aug_inpaint_categ_image_path)
+                PSNR_erase = calculate_psnr_score(initial_image_path, aug_erase_categ_image_path)
+                PSNR_noise = calculate_psnr_score(initial_image_path, aug_noise_categ_image_path)
 
                 scores.append([str(id), 
-                               FID_inpaint, SSIM_inpaint, MSE_inpaint, 
-                               FID_erase, SSIM_erase, MSE_erase, 
-                               FID_noise, SSIM_noise, MSE_noise])
+                               FID_inpaint, SSIM_inpaint, LPIPS_inpaint_alex, LPIPS_inpaint_vgg, LPIPS_inpaint_sq, MSE_inpaint, PSNR_inpaint,
+                               FID_erase, SSIM_erase, LPIPS_erase_alex, LPIPS_erase_vgg, LPIPS_erase_sq, MSE_erase, PSNR_erase,
+                               FID_noise, SSIM_noise, LPIPS_noise_alex, LPIPS_noise_vgg, LPIPS_noise_sq, MSE_noise, PSNR_noise])
 
                 images.append([str(id), initial_caption, aug_caption_category, 
                     initial_image_path, aug_inpaint_categ_image_path, 

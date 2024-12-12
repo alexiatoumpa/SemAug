@@ -1,12 +1,12 @@
 from augmentation.Masking import *
 from augmentation.InpaintingDifussionModel import Inpainting
 from nlp.Caption_Enrichement_NLP import caption_category, change_caption
-from fidelity_scores.fid import calculate_fid_score
-from fidelity_scores.ssim import calculate_ssim_score
-from fidelity_scores.mse import calculate_mse_score
-from fidelity_scores.lpips import calculate_lpips_score
-from fidelity_scores.psnr import calculate_psnr_score
-from fidelity_scores.vif import calculate_vif_score
+from fidelity_scores.fid_score import calculate_fid_score
+from fidelity_scores.ssim_score import calculate_ssim_score
+from fidelity_scores.mse_score import calculate_mse_score
+from fidelity_scores.lpips_score import calculate_lpips_score
+from fidelity_scores.psnr_score import calculate_psnr_score
+from fidelity_scores.vif_score import calculate_vif_score
 
 # import re
 from timm.data.random_erasing import RandomErasing
@@ -373,7 +373,7 @@ def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./',
                 # plt.axis('off')
                 
                 aug_erase_categ_image_path = os.path.join(aug_erase_categ_path, str(rep) + str(id) + ".jpg")
-                plt.savefig(aug_erase_categ_image_path)
+                # plt.savefig(aug_erase_categ_image_path)
 
                 # Noise
                 mean, std = 0, 1
@@ -384,8 +384,8 @@ def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./',
                 # plt.imshow(noise_image)
                 
                 aug_noise_categ_image_path = os.path.join(aug_noise_categ_path, str(rep) + str(id) + ".jpg")
-                plt.imsave(aug_noise_categ_image_path, noise_image)
-                # cv2.imwrite(aug_noise_categ_image_path, noise_image)
+                # plt.imsave(aug_noise_categ_image_path, noise_image)
+                cv2.imwrite(aug_noise_categ_image_path, noise_image)
 
                 # Calculate fidelity scores:
                 # FID

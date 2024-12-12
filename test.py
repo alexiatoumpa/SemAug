@@ -87,11 +87,14 @@ if __name__ == "__main__":
     # images.append({"id": str(id), "caption": Initial_caption, "Aug_caption": aug_caption_Category, "original": ini_path,
     #                "Inpainting": inpaint_path, "Erase": erase_path, "Noise": noise_path})
 
-    entete_results=['img_id', 'SSIM_Inp', 'SSIM_Erase','SSIM_Noise', 'FID_inp', 
-                    'FID_Erase','FID_Noise', 'Clip score']
+    entete_results=['img_id', 'caption', 'augmented_caption','method', 'MSE', 
+                    'PSNR','FID', 'SSIM', 'LPIPS_alex', 'LPIPS_vgg', 'LPIPS_squeeze', 'VIF']
+
     # device = torch.device("cpu")
-    entete_imgs=["id", "caption", "Aug_caption", "original_img", "Inpainting", 
-                 "Erase", "Noise", "label", "aug_category"]
+    # entete_imgs=['id', 'caption', 'augmented_caption', 'original_img', 'inpainting', 
+    #              'erase', 'noise', 'label', 'augmentation_category']
+    entete_imgs=['id', 'caption', 'augmented_caption', 'method', 'original_img', 'augmented_img', 
+                 'label', 'augmentation_category']
     approach = 'Inpainting'
 
     date = datetime.strftime(datetime.now(), '%Y-%m-%d')
@@ -115,11 +118,12 @@ if __name__ == "__main__":
     # Load dataset
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
     # Create augmented data
-    results, images = augment_cifar_images(np.array([x_test[0]]), np.array([y_test[0]]), 
-                                           seed_size=seed_size, data_directory_path=data_directory_path, 
-                                           categories=categories)
+    # results, images = augment_cifar_images(np.array([x_test[0]]), np.array([y_test[0]]),
+    images, scores = augment_cifar_images(x_test, y_test,
+                                          seed_size=seed_size, data_directory_path=data_directory_path, 
+                                          categories=categories)
 
-    print("size of augmented data set:", len(results))
+    print("size of augmented data set:", len(scores))
     with open('./results/' + file_name, 'w') as out_file:
         tsv_writer = csv.writer(out_file, delimiter='\t')
         tsv_writer.writerow(entete_results)

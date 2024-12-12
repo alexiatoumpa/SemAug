@@ -421,15 +421,32 @@ def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./',
                 VIF_erase = calculate_vif_score(initial_image_path, aug_erase_categ_image_path)
                 VIF_noise = calculate_vif_score(initial_image_path, aug_noise_categ_image_path)
 
-                scores.append([str(id), 
-                               FID_inpaint, SSIM_inpaint, LPIPS_inpaint_alex, LPIPS_inpaint_vgg, LPIPS_inpaint_sq, MSE_inpaint, PSNR_inpaint, VIF_inpaint,
-                               FID_erase, SSIM_erase, LPIPS_erase_alex, LPIPS_erase_vgg, LPIPS_erase_sq, MSE_erase, PSNR_erase, VIF_erase,
-                               FID_noise, SSIM_noise, LPIPS_noise_alex, LPIPS_noise_vgg, LPIPS_noise_sq, MSE_noise, PSNR_noise, VIF_noise,
+                scores.append([str(id), initial_caption, aug_caption_category, 
+                               "inpaint", MSE_inpaint, PSNR_inpaint, FID_inpaint, 
+                               SSIM_inpaint, LPIPS_inpaint_alex, LPIPS_inpaint_vgg, 
+                               LPIPS_inpaint_sq, VIF_inpaint,
+                               ])
+                scores.append([str(id), initial_caption, aug_caption_category, 
+                               "erase", MSE_erase, PSNR_erase, FID_erase, SSIM_erase, 
+                               LPIPS_erase_alex, LPIPS_erase_vgg, LPIPS_erase_sq, VIF_erase,
+                               ])
+                scores.append([str(id), initial_caption, aug_caption_category, 
+                               "noise", MSE_noise, PSNR_noise, FID_noise, SSIM_noise, 
+                               LPIPS_noise_alex, LPIPS_noise_vgg, LPIPS_noise_sq, VIF_noise,
                                ])
 
+                # images.append([str(id), initial_caption, aug_caption_category, 
+                #     initial_image_path, aug_inpaint_categ_image_path, 
+                #     aug_erase_categ_image_path, aug_noise_categ_image_path, 
+                #     label, category])
                 images.append([str(id), initial_caption, aug_caption_category, 
-                    initial_image_path, aug_inpaint_categ_image_path, 
-                    aug_erase_categ_image_path, aug_noise_categ_image_path, 
+                    "inpaint", initial_image_path, aug_inpaint_categ_image_path, 
+                    label, category])
+                images.append([str(id), initial_caption, aug_caption_category, 
+                    "erase", initial_image_path, aug_erase_categ_image_path, 
+                    label, category])
+                images.append([str(id), initial_caption, aug_caption_category, 
+                    "noise", initial_image_path, aug_noise_categ_image_path, 
                     label, category])
 
     return images, scores

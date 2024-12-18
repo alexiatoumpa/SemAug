@@ -19,14 +19,16 @@ def preprocess_image(image, size=(299,299)):
 
 def calculate_fid_score(image1path, image2path):
     # load images
-    image1 = cv2.imread(image1path, cv2.IMREAD_COLOR)
-    image2 = cv2.imread(image2path, cv2.IMREAD_COLOR)
+    # image1 = cv2.imread(image1path, cv2.IMREAD_COLOR)
+    # image2 = cv2.imread(image2path, cv2.IMREAD_COLOR)
+    image1 = Image.open(image1path).convert("RGB")
+    image2 = Image.open(image2path).convert("RGB")
 
     # Convert OpenCV image to Pillow image
-    image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2RGB)
-    image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2RGB)
-    image1 = Image.fromarray(image1)
-    image2 = Image.fromarray(image2)
+    # image1 = cv2.cvtColor(image1, cv2.COLOR_BGR2RGB)
+    # image2 = cv2.cvtColor(image2, cv2.COLOR_BGR2RGB)
+    # image1 = Image.fromarray(image1)
+    # image2 = Image.fromarray(image2)
 
     # using Inception model to get high-level feature representation
     model = models.inception_v3(pretrained=True, transform_input=False)
@@ -70,9 +72,9 @@ if __name__ == "__main__":
 
     initial_image_path = "./data/cifar/Augmented/101.jpg"
     aug_inpaint_categ_image_path = "./data/cifar/Augmented/Inpainting/airplane/0101.jpg"
-    aug_erase_categ_image_path = "./data/cifar/Augmented/Erasing/airplane/0101.jpg"
-    aug_noise_categ_image_path = "./data/cifar/Augmented/Noise/airplane/0101.jpg"
+    # aug_erase_categ_image_path = "./data/cifar/Augmented/Erasing/airplane/0101.jpg"
+    # aug_noise_categ_image_path = "./data/cifar/Augmented/Noise/airplane/0101.jpg"
 
     inpaint_score = calculate_fid_score(initial_image_path, aug_inpaint_categ_image_path)
-    erase_score = calculate_fid_score(initial_image_path, aug_erase_categ_image_path)
-    noise_score = calculate_fid_score(initial_image_path, aug_noise_categ_image_path)
+    # erase_score = calculate_fid_score(initial_image_path, aug_erase_categ_image_path)
+    # noise_score = calculate_fid_score(initial_image_path, aug_noise_categ_image_path)

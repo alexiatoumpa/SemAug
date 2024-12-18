@@ -295,20 +295,14 @@ def create_mask_image(image=None, mask_img_path='./'):
     Masking = Create_Mask(image, mask_img_path)
     W_mask = Masking.get_mask()
     mask = cv2.cvtColor(W_mask, cv2.COLOR_BGR2RGB)
-    # plt.imshow(mask)
-    cv2.imwrite(mask_img_path, mask)
-    return
+    return mask
 
 
-def create_inpaint_image(image_path='./', mask_path='./', caption='cat', inpaint_image_path='./'):
+def create_inpaint_image(image_path='./', mask_path='./', caption='cat'):
     inpainted_images = Inpainting(image_path, mask_path, caption)
-    inpaint_image = inpainted_images[0]
-    # plt.imshow(inpaint_image)
-    # plt.axis('off')       
+    inpaint_image = inpainted_images[0]    
     inpaint_image = np.array(inpaint_image)
-    # inpaint_image = cv2.resize(inpaint_image, (height, width))
-    cv2.imwrite(inpaint_image_path, inpaint_image)
-    return
+    return inpaint_image
 
 
 def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./', categories=[]):
@@ -326,21 +320,25 @@ def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./',
 
         # read initial image
         initial_image_path = os.path.join(data_directory_path, str(id) + ".jpg")
-        image = Image.open(initial_image_path)
-        imageT = transforms.ToTensor()(image)
 
-        image = cv2.imread(initial_image_path, 0)
+        
 
         height, width, _ = features.shape
         initial_image = features
+        # save original image
         cv2.imwrite(initial_image_path, initial_image)
         print("label", np.argmax(label))
-        # plt.imshow(features)
-        # plt.savefig(initial_image_path)
+
+        image = Image.open(initial_image_path) # used in erase
+        imageT = transforms.ToTensor()(image) # used in erase
+
+        image = cv2.imread(initial_image_path, 0) # used in noise
 
         # create mask
         aug_mask_image_path = os.path.join(aug_mask_path, str(id) + ".jpg")
-        create_mask_image(image=initial_image, mask_img_path=aug_mask_image_path)
+        mask = create_mask_image(image=initial_image, mask_img_path=aug_mask_image_path)
+        # save mask image
+        cv2.imwrite(aug_mask_image_path, mask)
 
         initial_caption = get_caption(label[0], categories)
         print("Initial caption: ", initial_caption)
@@ -363,17 +361,21 @@ def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./',
                 
                 # Inpainting
                 aug_inpaint_categ_image_path = os.path.join(aug_inpaint_categ_path, str(rep) + str(id) + ".jpg")
-                create_inpaint_image(image_path=initial_image_path, mask_path=aug_mask_image_path, 
-                                     caption=aug_caption_category, inpaint_image_path=aug_inpaint_categ_image_path)
+                inpaint_image = create_inpaint_image(image_path=initial_image_path, mask_path=aug_mask_image_path, 
+                                                     caption=aug_caption_category)
+                # save inpaint image
+                # inpaint_image = cv2.resize(inpaint_image, (height, width))
+                cv2.imwrite(aug_inpaint_categ_image_path, inpaint_image)
 
                 # Erase
                 random_erase = RandomErasing(probability=1, mode='pixel', device='cpu')
                 erased_image = random_erase(imageT).permute(1, -1, 0)
-                plt.imshow(np.squeeze(erased_image))
-                # plt.axis('off')
-                
+            
                 aug_erase_categ_image_path = os.path.join(aug_erase_categ_path, str(rep) + str(id) + ".jpg")
-                # plt.savefig(aug_erase_categ_image_path)
+                # save erased image
+                plt.imshow(np.squeeze(erased_image))
+                plt.axis('off')
+                plt.savefig(aug_erase_categ_image_path)
 
                 # Noise
                 mean, std = 0, 1
@@ -381,10 +383,9 @@ def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./',
                 image = image.astype("int16")
                 noise_image = image + gaussian_noise
                 # noise_image = cv2.resize(noise_image, (height, width))
-                # plt.imshow(noise_image)
                 
                 aug_noise_categ_image_path = os.path.join(aug_noise_categ_path, str(rep) + str(id) + ".jpg")
-                # plt.imsave(aug_noise_categ_image_path, noise_image)
+                # save noise image
                 cv2.imwrite(aug_noise_categ_image_path, noise_image)
 
                 # Calculate fidelity scores:

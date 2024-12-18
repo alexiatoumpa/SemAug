@@ -118,8 +118,8 @@ if __name__ == "__main__":
     # Load dataset
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
     # Create augmented data
-    # results, images = augment_cifar_images(np.array([x_test[0]]), np.array([y_test[0]]),
-    images, scores = augment_cifar_images(x_test, y_test,
+    images, scores = augment_cifar_images(np.array([x_test[2]]), np.array([y_test[2]]),
+    # images, scores = augment_cifar_images(x_test, y_test,
                                           seed_size=seed_size, data_directory_path=data_directory_path, 
                                           categories=categories)
 
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     with open('./results/' + file_name, 'w') as out_file:
         tsv_writer = csv.writer(out_file, delimiter='\t')
         tsv_writer.writerow(entete_results)
-        for l in results:
+        for l in scores:
             tsv_writer.writerow(l)
     with open('./results/' + file_images, 'w') as out_file:
         tsv_writer = csv.writer(out_file, delimiter='\t')

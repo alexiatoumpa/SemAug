@@ -19,7 +19,7 @@ pip install lpips
 pip install sewar
 ```
 Then follow the steps below:
-1. Download the Mask R-CNN models from [here](https://github.com/sambhav37/Mask-R-CNN/tree/master/mask-rcnn-coco).
+1. Download the Mask R-CNN models from [here](https://github.com/sambhav37/Mask-R-CNN/tree/master/mask-rcnn-coco). Store the downloaded models under the `models/` directory.
 2. Create an account in hugging face and add token in `InpaintingDiffusionModel.py` stored in the variable `access_token`.
 3. Download the `inpainting.py` file from hugging face and store it under the `augmentation/` directory:
 ```bash

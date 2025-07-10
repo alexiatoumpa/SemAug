@@ -11,16 +11,19 @@ import cv2
 
 class Create_Mask():
     
-    def __init__(self, img, path):
+    def __init__(self, img):
         self.net = cv2.dnn.readNetFromTensorflow(
             "/home/alexiatoumpa/dev/Github/SemAug/models/frozen_inference_graph.pb",
             "/home/alexiatoumpa/dev/Github/SemAug/models/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt")
-        self.img = cv2.resize(img, (256, 256))
+        # self.img = cv2.resize(img, (256, 256))
+        self.img = img
+        # plt.imshow(cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB))
+        # print('o')
+        
         self.colors = np.random.randint(125, 255, (90, 3))
         self.height, self.width, _ = img.shape
         self.black_image = np.zeros((self.height, self.width, 3), np.uint8)
         self.black_image[:] = (0, 0, 0)
-        self.path=path
 
 
     def get_mask(self):
@@ -60,6 +63,7 @@ class Create_Mask():
                     cv2.fillPoly(roi, [cnt], (255, 255, 255))
                     int(color[0]), int(color[0]), int(color[0])
 
-                plt.imshow(cv2.cvtColor(mask, cv2.COLOR_BGR2RGB))
+                # plt.imshow(cv2.cvtColor(mask, cv2.COLOR_BGR2RGB))
+                # print('o')
         return self.black_image
 

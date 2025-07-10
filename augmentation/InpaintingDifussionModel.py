@@ -26,8 +26,8 @@ def Inpainting(Init_img, mask, augmented_caption):
               )
         pipe = pipe.to(device)
 
-        init_image = Image.open(Init_img).resize((512, 512))
-        mask_image = Image.open(mask).resize((512, 512))
+        init_image = Image.open(Init_img)#.resize((512, 512))
+        mask_image = Image.open(mask)#.resize((512, 512))
 
         with torch.no_grad(): 
             images = pipe(prompt=augmented_caption, image=init_image, mask_image=mask_image, strength=0.75).images

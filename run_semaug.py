@@ -1,13 +1,14 @@
 from augmentation.InpaintingDifussionModel import Inpainting
-from process import augment_cifar_images
-# from Realism_measures.SSIM import *
-# from Realism_measures.FID import *
+from process import augment_cifar_images, augment_custom_images
 from nlp.Caption_Enrichement_NLP import *
 
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
-from tensorflow.keras.datasets import cifar10
+# from tensorflow.keras.datasets import cifar10
+from utils.datasets import (load_cifar10_dataset, load_custom_dataset, 
+                            load_test_imagepaths
+)
 import csv
 import os
 import argparse
@@ -33,7 +34,7 @@ def parse_arguments():
     parser.add_argument("-M", "--methodology", help="semantic augmentation methodology", 
                         choices=['Inpainting','Imagic'])
     parser.add_argument("-DS", "--dataset", help="The dataset to be used (mnist\
-                        SVHN or cifar10).", choices=["mnist","cifar10","SVHN"])
+                        SVHN or cifar10).", choices=["mnist","cifar10","SVHN","leaf"])
     parser.add_argument("-Me", "--measure", help="the approach to be employed \
                             to measure similarity", choices=['SSIM', 'FID'])
 
@@ -112,16 +113,52 @@ if __name__ == "__main__":
     logfile = open(logfile_name, 'a')
 
     print(dataset,"loading... ... ...")
-    categories = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 
-                  'horse', 'ship', 'truck']
-    data_directory_path = "./data/cifar/Augmented/"
-    # Load dataset
-    (x_train, y_train), (x_test, y_test) = cifar10.load_data()
-    # Create augmented data
-    images, scores = augment_cifar_images(np.array([x_test[2]]), np.array([y_test[2]]),
-    # images, scores = augment_cifar_images(x_test, y_test,
-                                          seed_size=seed_size, data_directory_path=data_directory_path, 
-                                          categories=categories)
+    if dataset=='cifar10':
+        categories = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 
+                    'horse', 'ship', 'truck']
+        data_directory_path = "./data/cifar/Augmented/"
+
+        # Load dataset
+        # (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+        (x_train, y_train), (x_test, y_test) = load_cifar10_dataset()
+        print("x_test shape:", x_test.shape)
+        print("y_test shape:", y_test.shape)
+        print(type(x_test))
+        print(type(y_test))
+        # Create augmented data
+        images, scores = augment_cifar_images(np.array([x_test[2]]), np.array([y_test[2]]),
+        # images, scores = augment_cifar_images(x_test, y_test,
+                                            seed_size=seed_size, data_directory_path=data_directory_path, 
+                                            categories=categories)
+    elif dataset=='leaf':
+        categories = ['yellowed leaf', 'rotten leaf', 'fungus', 'dehydrated leaf']
+        data_directory_path = "./data/leaf/Augmented/"
+
+        # Load dataset
+        # dataset_path = '/home/alexiatoumpa/data/QDC/Grape Varieties_for image processing/'
+        dataset_path = '/home/alexiatoumpa/data/grape_dataset/'
+        # (x_train, y_train), (x_test, y_test) = load_custom_dataset(dataset_path=dataset_path)
+        (_, _), (x_test, y_test) = load_test_imagepaths(dataset_path=dataset_path)
+
+        try:
+            print("x_test shape:", x_test.shape)
+            print("y_test shape:", y_test.shape)
+        except Exception:
+            print("x_test shape:", len(x_test))
+            print("y_test shape:", len(y_test))
+        print("x_test type:", type(x_test))
+        print("y_test type:", type(y_test))
+
+        # Create augmented data
+        # images, scores = augment_custom_images(np.array([x_test[0]]), np.array([y_test[0]]),
+        #                                     seed_size=seed_size, data_directory_path=data_directory_path, 
+        #                                     categories=categories)
+        images, scores = augment_custom_images(x_test, y_test,
+                                            seed_size=seed_size, data_directory_path=data_directory_path, 
+                                            categories=categories)
+    
+    
+    
 
     print("size of augmented data set:", len(scores))
     with open('./results/' + file_name, 'w') as out_file:
@@ -138,8 +175,4 @@ if __name__ == "__main__":
     print("saved csv")
    
     print("--- %s seconds ---" % (datetime.now() - start_time))
-
-
-
-
 

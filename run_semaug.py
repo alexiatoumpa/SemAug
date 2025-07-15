@@ -1,5 +1,5 @@
 from augmentation.InpaintingDifussionModel import Inpainting
-from process import augment_cifar_images, augment_custom_images
+from process import augment_images, augment_cifar_images
 from nlp.Caption_Enrichement_NLP import *
 
 import numpy as np
@@ -33,17 +33,17 @@ def parse_arguments():
                         action="version", version="DeepFault %f" % __version__)
     parser.add_argument("-M", "--methodology", help="semantic augmentation methodology", 
                         choices=['Inpainting','Imagic'])
-    parser.add_argument("-DS", "--dataset", help="The dataset to be used (mnist\
+    parser.add_argument("-DS", "--dataset", default="cifar10", help="The dataset to be used (mnist\
                         SVHN or cifar10).", choices=["mnist","cifar10","SVHN","leaf"])
-    parser.add_argument("-Me", "--measure", help="the approach to be employed \
-                            to measure similarity", choices=['SSIM', 'FID'])
+    # parser.add_argument("-Me", "--measure", help="the approach to be employed \
+    #                         to measure similarity", choices=['SSIM', 'FID'])
 
     parser.add_argument("-Cap", "--Augmented_caption", help="the image caption")
     parser.add_argument("-K", "--iteration", help="nbre of iteration for augmenting an image.", 
                         type=int)
-    parser.add_argument("-SS", "--seed_size", help="size of initial set of seed images.", 
+    parser.add_argument("-SS", "--seed_size", default=2, help="size of initial set of seed images.", 
                         type=int)
-    parser.add_argument("-LOG", "--logfile", help="path to log file")
+    parser.add_argument("-LOG", "--logfile", default='DataAugment.log', help="path to log file")
 
     args = parser.parse_args()
 
@@ -66,16 +66,16 @@ if __name__ == "__main__":
     approach = args['methodology'] if args['methodology'] else 'Inpainting'
 
     # nlp = spacy.load("en_core_web_sm")
-    taxonomy = ['smiling', 'waving', 'talking', 'sleeping', 'siting', 'laughting', 
-                'jumping', 'wearing a mask']
-    measure = args['measure'] if not args['measure'] == None else 'SSIM'
+    # taxonomy = ['smiling', 'waving', 'talking', 'sleeping', 'siting', 'laughting', 
+    #             'jumping', 'wearing a mask']
+    # measure = args['measure'] if not args['measure'] == None else 'SSIM'
     # caption = args['intial_caption'] if not args['intial_caption'] == None else 'a person'
     Augmented_caption = args['Augmented_caption'] if not args['Augmented_caption'] == None \
         else 'a person'
-    seed_size = args['seed_size'] if not args['seed_size'] == None else 2
-    dataset = args['dataset'] if not args['dataset'] == None else 'cifar10'#'coco_animal'#['knw']
+    seed_size = args['seed_size']
+    dataset = args['dataset']
     # datatype = args['datatype'] if not args['datatype'] == None else 'cifar'
-    logfile_name = args['logfile'] if args['logfile'] else 'DataAugment.log'
+    logfile_name = args['logfile']
     logfile = open(logfile_name, 'a')
     extension='.csv'
 
@@ -126,10 +126,12 @@ if __name__ == "__main__":
         print(type(x_test))
         print(type(y_test))
         # Create augmented data
-        images, scores = augment_cifar_images(np.array([x_test[2]]), np.array([y_test[2]]),
-        # images, scores = augment_cifar_images(x_test, y_test,
-                                            seed_size=seed_size, data_directory_path=data_directory_path, 
-                                            categories=categories)
+        # images, scores = augment_cifar_images(x_test, y_test, dataset=dataset,
+        #                                 seed_size=seed_size, data_directory_path=data_directory_path, 
+        #                                 categories=categories)
+        # images, scores = augment_images(x_test, y_test, dataset=dataset,
+        #                             seed_size=seed_size, data_directory_path=data_directory_path,
+        #                             categories=categories, augmentation_type=['Inpainting'])
     elif dataset=='leaf':
         categories = ['yellowed leaf', 'rotten leaf', 'fungus', 'dehydrated leaf']
         data_directory_path = "./data/leaf/Augmented/"
@@ -149,13 +151,13 @@ if __name__ == "__main__":
         print("x_test type:", type(x_test))
         print("y_test type:", type(y_test))
 
-        # Create augmented data
-        # images, scores = augment_custom_images(np.array([x_test[0]]), np.array([y_test[0]]),
-        #                                     seed_size=seed_size, data_directory_path=data_directory_path, 
-        #                                     categories=categories)
-        images, scores = augment_custom_images(x_test, y_test,
-                                            seed_size=seed_size, data_directory_path=data_directory_path, 
-                                            categories=categories)
+    # Create augmented data
+    # images, scores = augment_custom_images(np.array([x_test[0]]), np.array([y_test[0]]),
+    #                                     seed_size=seed_size, data_directory_path=data_directory_path, 
+    #                                     categories=categories)
+    images, scores = augment_images(x_test, y_test, dataset=dataset, 
+                                    seed_size=seed_size, data_directory_path=data_directory_path, 
+                                    categories=categories, augmentation_type=['Inpainting'])
     
     
     

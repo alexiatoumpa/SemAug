@@ -272,8 +272,8 @@ def get_caption(label,category):
 #     return "None"
 
 
-def create_aug_data_directories(data_directory_path='./', subdir=["Mask", "Inpainting", 
-    "Erasing", "Noise"]):
+def create_aug_data_directories(data_directory_path='./', 
+                                subdir=["Mask", "Inpainting", "Erasing", "Noise"]):
 
     aug_subdir_paths = []
     if isinstance(subdir, list):
@@ -291,6 +291,13 @@ def create_aug_data_directories(data_directory_path='./', subdir=["Mask", "Inpai
     return aug_subdir_paths
 
 
+def create_data_directory(data_directory_path='./', subdir="Mask"):
+    path_ = os.path.join(data_directory_path, subdir)
+    if not os.path.exists(path_):
+        os.mkdir(path_)
+    return path_
+
+
 def create_mask_image(image=None):
     Masking = Create_Mask(image)
     W_mask = Masking.get_mask()
@@ -306,7 +313,7 @@ def create_inpaint_image(image_path='./', mask_path='./', caption='cat'):
     return inpaint_image
 
 
-def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./', categories=[]):
+def augment_cifar_images(x_test, y_test, seed_size=42, dataset='cifar10', data_directory_path='./', categories=[]):
     scores = []
     images = []
 
@@ -455,15 +462,31 @@ def augment_cifar_images(x_test, y_test, seed_size=42, data_directory_path='./',
     return images, scores
 
 
-def augment_custom_images(x_test, y_test, seed_size=42, data_directory_path='./', categories=[]):
+def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10', 
+                   data_directory_path='./', categories=[], 
+                   augmentation_type=['Inpainting', 'Erasing', 'Noise']):
     scores = []
     images = []
 
-    [aug_mask_path, aug_inpaint_path, aug_erase_path, aug_noise_path] = \
-        create_aug_data_directories(data_directory_path=data_directory_path,
-                                    subdir=["Mask", "Inpainting", "Erasing", "Noise"])
+    aug_mask_path = create_data_directory(data_directory_path=data_directory_path, 
+                                          subdir='Mask')
+
+    if 'Inpainting' in augmentation_type:
+        aug_inpaint_path = create_data_directory(data_directory_path=data_directory_path, 
+                                                 subdir='Inpainting')
+    if 'Erasing' in augmentation_type:
+        aug_erase_path = create_data_directory(data_directory_path=data_directory_path, 
+                                               subdir='Erasing')
+    if 'Noise' in augmentation_type:
+        aug_noise_path = create_data_directory(data_directory_path=data_directory_path, 
+                                               subdir='Noise')
+
+
+    # [aug_mask_path, aug_inpaint_path, aug_erase_path, aug_noise_path] = \
+    #     create_aug_data_directories(data_directory_path=data_directory_path,
+    #                                 subdir=["Mask"] + augmentation_type)
     
-    id = 100
+    id = 0 # TODO: change to the image name
     for features, label in zip(x_test[:seed_size], y_test[:seed_size]):
         id += 1
         print(id)
@@ -500,116 +523,151 @@ def augment_custom_images(x_test, y_test, seed_size=42, data_directory_path='./'
         print('Mask shape:', mask.shape)
         cv2.imwrite(aug_mask_image_path, mask)
 
-        # initial_caption = get_caption(label[0], categories)
-        initial_caption = 'leaf'
-        print("Initial caption: leaf of", label)
+
+        if dataset == 'cifar10':
+            initial_caption = get_caption(label[0], categories)
+        elif dataset == 'leaf':
+            initial_caption = 'leaf'
+        print("Initial caption: ", label)
+
         rep = 0 ## TO CHECK: this doesn't increase
         subcategory = ''
 
         # parse through all the categories to create an augmentation image
         for category in categories:
-            if True: # category != initial_caption:
+            if category != initial_caption:
                 print("Category: ", category)
                 # create the directories for each category
-                [aug_inpaint_categ_path, aug_erase_categ_path, aug_noise_categ_path] = \
-                    create_aug_data_directories(data_directory_path=[aug_inpaint_path, 
-                                                                     aug_erase_path, 
-                                                                     aug_noise_path], 
-                                                subdir=category)
+                if 'Inpainting' in augmentation_type:
+                    aug_inpaint_categ_path = create_data_directory(data_directory_path=aug_inpaint_path, 
+                                                                   subdir=category)
+                if 'Erasing' in augmentation_type:
+                    aug_erase_categ_path = create_data_directory(data_directory_path=aug_erase_path, 
+                                                                 subdir=category)
+                if 'Noise' in augmentation_type:
+                    aug_noise_categ_path = create_data_directory(data_directory_path=aug_noise_path, 
+                                                                 subdir=category)
 
                 # create new caption for the specific category
                 aug_caption_category = caption_category(initial_caption, category, subcategory)
                 
                 # Inpainting
-                aug_inpaint_categ_image_path = os.path.join(aug_inpaint_categ_path, str(rep) + str(id) + ".jpg")
-                inpaint_image = create_inpaint_image(image_path=initial_image_path, mask_path=aug_mask_image_path, 
-                                                     caption=aug_caption_category)
-                # save inpaint image
-                # inpaint_image = cv2.resize(inpaint_image, (height, width))
-                cv2.imwrite(aug_inpaint_categ_image_path, inpaint_image)
+                if 'Inpainting' in augmentation_type:
+                    aug_inpaint_categ_image_path = os.path.join(aug_inpaint_categ_path, str(rep) + str(id) + ".jpg")
+                    inpaint_image = create_inpaint_image(image_path=initial_image_path, mask_path=aug_mask_image_path, 
+                                                        caption=aug_caption_category)
+                    # save inpaint image
+                    # inpaint_image = cv2.resize(inpaint_image, (height, width))
+                    cv2.imwrite(aug_inpaint_categ_image_path, inpaint_image)
+
+                    # Calculate fidelity scores:
+                    # FID
+                    FID_inpaint = calculate_fid_score(initial_image_path, aug_inpaint_categ_image_path)
+                    # SSIM
+                    SSIM_inpaint = calculate_ssim_score(initial_image_path, aug_inpaint_categ_image_path)
+                    # LPIPS AlexNet
+                    LPIPS_inpaint_alex = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='alex')
+                    # LPIPS VGG
+                    LPIPS_inpaint_vgg = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='vgg')
+                    # LPIPS squeeze
+                    LPIPS_inpaint_sq = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='squeeze')
+                    # MSE
+                    MSE_inpaint = calculate_mse_score(initial_image_path, aug_inpaint_categ_image_path)
+                    # PSNR
+                    PSNR_inpaint = calculate_psnr_score(initial_image_path, aug_inpaint_categ_image_path)
+                    # VIF
+                    VIF_inpaint = calculate_vif_score(initial_image_path, aug_inpaint_categ_image_path)
+
+                    scores.append([str(id), initial_caption, aug_caption_category, 
+                                   "inpaint", MSE_inpaint, PSNR_inpaint, FID_inpaint, 
+                                   SSIM_inpaint, LPIPS_inpaint_alex, LPIPS_inpaint_vgg, 
+                                   LPIPS_inpaint_sq, VIF_inpaint,
+                                   ])
+                    
+                    images.append([str(id), initial_caption, aug_caption_category, 
+                                   "inpaint", initial_image_path, aug_inpaint_categ_image_path, 
+                                   label, category,
+                                   ])
 
                 # Erase
-                random_erase = RandomErasing(probability=1, mode='pixel', device='cpu')
-                erased_image = random_erase(imageT).permute(1, -1, 0)
-            
-                aug_erase_categ_image_path = os.path.join(aug_erase_categ_path, str(rep) + str(id) + ".jpg")
-                # save erased image
-                plt.imshow(np.squeeze(erased_image))
-                plt.axis('off')
-                plt.savefig(aug_erase_categ_image_path)
+                if 'Erasing' in augmentation_type:
+                    random_erase = RandomErasing(probability=1, mode='pixel', device='cpu')
+                    erased_image = random_erase(imageT).permute(1, -1, 0)
+                
+                    aug_erase_categ_image_path = os.path.join(aug_erase_categ_path, str(rep) + str(id) + ".jpg")
+                    # save erased image
+                    plt.imshow(np.squeeze(erased_image))
+                    plt.axis('off')
+                    plt.savefig(aug_erase_categ_image_path)
+
+                    # Calculate fidelity scores:
+                    # FID
+                    FID_erase = calculate_fid_score(initial_image_path, aug_erase_categ_image_path)
+                    # SSIM
+                    SSIM_erase = calculate_ssim_score(initial_image_path, aug_erase_categ_image_path)
+                    # LPIPS AlexNet
+                    LPIPS_erase_alex = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='alex')
+                    # LPIPS VGG
+                    LPIPS_erase_vgg = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='vgg')
+                    # LPIPS squeeze
+                    LPIPS_erase_sq = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='squeeze')
+                    # MSE
+                    MSE_erase = calculate_mse_score(initial_image_path, aug_erase_categ_image_path)
+                    # PSNR
+                    PSNR_erase = calculate_psnr_score(initial_image_path, aug_erase_categ_image_path)
+                    # VIF
+                    VIF_erase = calculate_vif_score(initial_image_path, aug_erase_categ_image_path)
+
+                    scores.append([str(id), initial_caption, aug_caption_category, 
+                                   "erase", MSE_erase, PSNR_erase, FID_erase, SSIM_erase, 
+                                   LPIPS_erase_alex, LPIPS_erase_vgg, LPIPS_erase_sq, VIF_erase,
+                                   ])
+                    
+                    images.append([str(id), initial_caption, aug_caption_category, 
+                                   "erase", initial_image_path, aug_erase_categ_image_path, 
+                                   label, category,
+                                   ])
 
                 # Noise
-                mean, std = 0, 1
-                gaussian_noise = np.random.normal(mean, std, image.shape)
-                image = image.astype("int16")
-                noise_image = image + gaussian_noise
-                # noise_image = cv2.resize(noise_image, (height, width))
+                if 'Noise' in augmentation_type:
+                    mean, std = 0, 1
+                    gaussian_noise = np.random.normal(mean, std, image.shape)
+                    image = image.astype("int16")
+                    noise_image = image + gaussian_noise
+                    # noise_image = cv2.resize(noise_image, (height, width))
+                    
+                    aug_noise_categ_image_path = os.path.join(aug_noise_categ_path, str(rep) + str(id) + ".jpg")
+                    # save noise image
+                    cv2.imwrite(aug_noise_categ_image_path, noise_image)
+
+                    # Calculate fidelity scores:
+                    # FID
+                    FID_noise = calculate_fid_score(initial_image_path, aug_noise_categ_image_path)
+                    # SSIM
+                    SSIM_noise = calculate_ssim_score(initial_image_path, aug_noise_categ_image_path)
+                    # LPIPS AlexNet
+                    LPIPS_noise_alex = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='alex')
+                    # LPIPS VGG
+                    LPIPS_noise_vgg = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='vgg')
+                    # LPIPS squeeze
+                    LPIPS_noise_sq = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='squeeze')
+                    # MSE
+                    MSE_noise = calculate_mse_score(initial_image_path, aug_noise_categ_image_path)
+                    # PSNR
+                    PSNR_noise = calculate_psnr_score(initial_image_path, aug_noise_categ_image_path)
+                    # VIF
+                    VIF_noise = calculate_vif_score(initial_image_path, aug_noise_categ_image_path)
+
                 
-                aug_noise_categ_image_path = os.path.join(aug_noise_categ_path, str(rep) + str(id) + ".jpg")
-                # save noise image
-                cv2.imwrite(aug_noise_categ_image_path, noise_image)
-
-                # Calculate fidelity scores:
-                # FID
-                FID_inpaint = calculate_fid_score(initial_image_path, aug_inpaint_categ_image_path)
-                FID_erase = calculate_fid_score(initial_image_path, aug_erase_categ_image_path)
-                FID_noise = calculate_fid_score(initial_image_path, aug_noise_categ_image_path)
-                # SSIM
-                SSIM_inpaint = calculate_ssim_score(initial_image_path, aug_inpaint_categ_image_path)
-                SSIM_erase = calculate_ssim_score(initial_image_path, aug_erase_categ_image_path)
-                SSIM_noise = calculate_ssim_score(initial_image_path, aug_noise_categ_image_path)
-                # LPIPS AlexNet
-                LPIPS_inpaint_alex = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='alex')
-                LPIPS_erase_alex = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='alex')
-                LPIPS_noise_alex = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='alex')
-                # LPIPS VGG
-                LPIPS_inpaint_vgg = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='vgg')
-                LPIPS_erase_vgg = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='vgg')
-                LPIPS_noise_vgg = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='vgg')
-                # LPIPS squeeze
-                LPIPS_inpaint_sq = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='squeeze')
-                LPIPS_erase_sq = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='squeeze')
-                LPIPS_noise_sq = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='squeeze')
-                # MSE
-                MSE_inpaint = calculate_mse_score(initial_image_path, aug_inpaint_categ_image_path)
-                MSE_erase = calculate_mse_score(initial_image_path, aug_erase_categ_image_path)
-                MSE_noise = calculate_mse_score(initial_image_path, aug_noise_categ_image_path)
-                # PSNR
-                PSNR_inpaint = calculate_psnr_score(initial_image_path, aug_inpaint_categ_image_path)
-                PSNR_erase = calculate_psnr_score(initial_image_path, aug_erase_categ_image_path)
-                PSNR_noise = calculate_psnr_score(initial_image_path, aug_noise_categ_image_path)
-                # VIF
-                VIF_inpaint = calculate_vif_score(initial_image_path, aug_inpaint_categ_image_path)
-                VIF_erase = calculate_vif_score(initial_image_path, aug_erase_categ_image_path)
-                VIF_noise = calculate_vif_score(initial_image_path, aug_noise_categ_image_path)
-
-                scores.append([str(id), initial_caption, aug_caption_category, 
-                               "inpaint", MSE_inpaint, PSNR_inpaint, FID_inpaint, 
-                               SSIM_inpaint, LPIPS_inpaint_alex, LPIPS_inpaint_vgg, 
-                               LPIPS_inpaint_sq, VIF_inpaint,
-                               ])
-                scores.append([str(id), initial_caption, aug_caption_category, 
-                               "erase", MSE_erase, PSNR_erase, FID_erase, SSIM_erase, 
-                               LPIPS_erase_alex, LPIPS_erase_vgg, LPIPS_erase_sq, VIF_erase,
-                               ])
-                scores.append([str(id), initial_caption, aug_caption_category, 
-                               "noise", MSE_noise, PSNR_noise, FID_noise, SSIM_noise, 
-                               LPIPS_noise_alex, LPIPS_noise_vgg, LPIPS_noise_sq, VIF_noise,
-                               ])
-
-                # images.append([str(id), initial_caption, aug_caption_category, 
-                #     initial_image_path, aug_inpaint_categ_image_path, 
-                #     aug_erase_categ_image_path, aug_noise_categ_image_path, 
-                #     label, category])
-                images.append([str(id), initial_caption, aug_caption_category, 
-                    "inpaint", initial_image_path, aug_inpaint_categ_image_path, 
-                    label, category])
-                images.append([str(id), initial_caption, aug_caption_category, 
-                    "erase", initial_image_path, aug_erase_categ_image_path, 
-                    label, category])
-                images.append([str(id), initial_caption, aug_caption_category, 
-                    "noise", initial_image_path, aug_noise_categ_image_path, 
-                    label, category])
+                    scores.append([str(id), initial_caption, aug_caption_category, 
+                                   "noise", MSE_noise, PSNR_noise, FID_noise, SSIM_noise, 
+                                   LPIPS_noise_alex, LPIPS_noise_vgg, LPIPS_noise_sq, VIF_noise,
+                                   ])
+                
+                    images.append([str(id), initial_caption, aug_caption_category, 
+                                   "noise", initial_image_path, aug_noise_categ_image_path, 
+                                   label, category,
+                                   ])
 
     return images, scores
 

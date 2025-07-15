@@ -298,8 +298,8 @@ def create_data_directory(data_directory_path='./', subdir="Mask"):
     return path_
 
 
-def create_mask_image(image=None):
-    Masking = Create_Mask(image)
+def create_mask_image(image=None, path2graph=None, path2weights=None):
+    Masking = Create_Mask(image, path2graph=path2graph, path2weights=path2weights)
     W_mask = Masking.get_mask()
     mask = cv2.cvtColor(W_mask, cv2.COLOR_BGR2RGB)
     return mask
@@ -313,7 +313,9 @@ def create_inpaint_image(image_path='./', mask_path='./', caption='cat'):
     return inpaint_image
 
 
-def augment_cifar_images(x_test, y_test, seed_size=42, dataset='cifar10', data_directory_path='./', categories=[]):
+def augment_cifar_images(x_test, y_test, seed_size=42, dataset='cifar10', 
+                         data_directory_path='./', categories=[], path2graph=None, 
+                         path2weights=None):
     scores = []
     images = []
 
@@ -345,7 +347,7 @@ def augment_cifar_images(x_test, y_test, seed_size=42, dataset='cifar10', data_d
 
         # create mask
         aug_mask_image_path = os.path.join(aug_mask_path, str(id) + ".jpg")
-        mask = create_mask_image(image=initial_image)
+        mask = create_mask_image(image=initial_image, path2graph=path2graph, path2weights=path2weights)
         # save mask image
         cv2.imwrite(aug_mask_image_path, mask)
 
@@ -464,7 +466,8 @@ def augment_cifar_images(x_test, y_test, seed_size=42, dataset='cifar10', data_d
 
 def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10', 
                    data_directory_path='./', categories=[], 
-                   augmentation_type=['Inpainting', 'Erasing', 'Noise']):
+                   augmentation_type=['Inpainting', 'Erasing', 'Noise'],
+                   path2graph=None, path2weights=None):
     scores = []
     images = []
 
@@ -512,7 +515,7 @@ def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10',
 
         # create mask
         aug_mask_image_path = os.path.join(aug_mask_path, str(id) + ".jpg")
-        mask = create_mask_image(image=initial_image)
+        mask = create_mask_image(image=initial_image, path2graph=path2graph, path2weights=path2weights)
 
         # If the mask is empty, skip to the next image
         if not mask.any():

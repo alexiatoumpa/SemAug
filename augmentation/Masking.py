@@ -11,10 +11,11 @@ import cv2
 
 class Create_Mask():
     
-    def __init__(self, img):
+    def __init__(self, img, path2graph="/home/alexiatoumpa/dev/Github/SemAug/models/frozen_inference_graph.pb", 
+                 path2weights="/home/alexiatoumpa/dev/Github/SemAug/models/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt"):
         self.net = cv2.dnn.readNetFromTensorflow(
-            "/home/alexiatoumpa/dev/Github/SemAug/models/frozen_inference_graph.pb",
-            "/home/alexiatoumpa/dev/Github/SemAug/models/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt")
+            path2graph,
+            path2weights)
         # self.img = cv2.resize(img, (256, 256))
         self.img = img
         # plt.imshow(cv2.cvtColor(self.img, cv2.COLOR_BGR2RGB))

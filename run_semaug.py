@@ -35,6 +35,10 @@ def parse_arguments():
                         choices=['Inpainting','Imagic'])
     parser.add_argument("-DS", "--dataset", default="cifar10", help="The dataset to be used (mnist\
                         SVHN or cifar10).", choices=["mnist","cifar10","SVHN","leaf"])
+    parser.add_argument("-PG", "--path2graph", help="Path to the mask prediction model graph file.", 
+                        type=str)
+    parser.add_argument("-PW", "--path2weights", help="Path to the mask prediction model weights file.", 
+                        type=str)
     # parser.add_argument("-Me", "--measure", help="the approach to be employed \
     #                         to measure similarity", choices=['SSIM', 'FID'])
 
@@ -74,6 +78,8 @@ if __name__ == "__main__":
         else 'a person'
     seed_size = args['seed_size']
     dataset = args['dataset']
+    path2graph=args['path2graph'] if 'path2graph' in args else "/home/alexiatoumpa/dev/Github/SemAug/models/frozen_inference_graph.pb"
+    path2weights=args['path2weights'] if 'path2weights' in args else "/home/alexiatoumpa/dev/Github/SemAug/models/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt"
     # datatype = args['datatype'] if not args['datatype'] == None else 'cifar'
     logfile_name = args['logfile']
     logfile = open(logfile_name, 'a')
@@ -128,10 +134,8 @@ if __name__ == "__main__":
         # Create augmented data
         # images, scores = augment_cifar_images(x_test, y_test, dataset=dataset,
         #                                 seed_size=seed_size, data_directory_path=data_directory_path, 
-        #                                 categories=categories)
-        # images, scores = augment_images(x_test, y_test, dataset=dataset,
-        #                             seed_size=seed_size, data_directory_path=data_directory_path,
-        #                             categories=categories, augmentation_type=['Inpainting'])
+        #                                 categories=categories, path2graph=path2graph, path2weights=path2weights)
+
     elif dataset=='leaf':
         categories = ['yellowed leaf', 'rotten leaf', 'fungus', 'dehydrated leaf']
         data_directory_path = "./data/leaf/Augmented/"
@@ -152,15 +156,10 @@ if __name__ == "__main__":
         print("y_test type:", type(y_test))
 
     # Create augmented data
-    # images, scores = augment_custom_images(np.array([x_test[0]]), np.array([y_test[0]]),
-    #                                     seed_size=seed_size, data_directory_path=data_directory_path, 
-    #                                     categories=categories)
     images, scores = augment_images(x_test, y_test, dataset=dataset, 
                                     seed_size=seed_size, data_directory_path=data_directory_path, 
-                                    categories=categories, augmentation_type=['Inpainting'])
-    
-    
-    
+                                    categories=categories, augmentation_type=['Inpainting'],
+                                    path2graph=path2graph, path2weights=path2weights)
 
     print("size of augmented data set:", len(scores))
     with open('./results/' + file_name, 'w') as out_file:

@@ -26,6 +26,14 @@ Then follow the steps below:
 pip freeze | grep diffusers
 wget https://raw.githubusercontent.com/huggingface/diffusers/main/examples/inference/inpainting.py
 ```
+4. Create output directories:
+```bash
+mkdir results
+mkdir data
+mkdir data/cifar
+mkdir data/cifar/Augmented
+```
+
 
 ## Run code
 ```bash

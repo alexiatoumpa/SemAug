@@ -33,8 +33,8 @@ def parse_arguments():
                         action="version", version="DeepFault %f" % __version__)
     parser.add_argument("-M", "--methodology", help="semantic augmentation methodology", 
                         choices=['Inpainting','Imagic'])
-    parser.add_argument("-DS", "--dataset", default="cifar10", help="The dataset to be used (mnist\
-                        SVHN or cifar10).", choices=["mnist","cifar10","SVHN","leaf"])
+    parser.add_argument("-DS", "--dataset", default="cifar10", help="The dataset to be used (imagenet, cifar10, or leaf).", 
+                        choices=["imagenet","cifar10","leaf"])
     parser.add_argument("-PG", "--path2graph", help="Path to the mask prediction model graph file.", 
                         type=str)
     parser.add_argument("-PW", "--path2weights", help="Path to the mask prediction model weights file.", 
@@ -48,6 +48,8 @@ def parse_arguments():
     parser.add_argument("-SS", "--seed_size", default=2, help="size of initial set of seed images.", 
                         type=int)
     parser.add_argument("-LOG", "--logfile", default='DataAugment.log', help="path to log file")
+
+    parser.add_argument("-FS", "--fidelity", action='store_true', help="Bollean argument for computing the fidelity scores.")
 
     args = parser.parse_args()
 
@@ -67,6 +69,7 @@ def parse_arguments():
 if __name__ == "__main__":
 
     args = parse_arguments()
+    print(args)
     approach = args['methodology'] if args['methodology'] else 'Inpainting'
 
     # nlp = spacy.load("en_core_web_sm")
@@ -89,6 +92,7 @@ if __name__ == "__main__":
     # Format as DATE - REGION - REPORT TYPE
     start_time = datetime.now()
     results=[]
+    fidelity_analysis = args['fidelity']
     # line = [str(id), SSIM_inpaint, SSIM_E, SSIM_N, FID_inpainting, FID_Erase, FID_Noise, clip_score.item()]
     # results.append(line)
     # images.append({"id": str(id), "caption": Initial_caption, "Aug_caption": aug_caption_Category, "original": ini_path,
@@ -170,14 +174,16 @@ if __name__ == "__main__":
     images, scores = augment_images(x_test, y_test, dataset=dataset, 
                                     seed_size=seed_size, data_directory_path=data_directory_path, 
                                     categories=categories, augmentation_type=['Inpainting'],
-                                    path2graph=path2graph, path2weights=path2weights)
+                                    path2graph=path2graph, path2weights=path2weights, 
+                                    fidelity_analysis=fidelity_analysis)
 
-    print("size of augmented data set:", len(scores))
-    with open('./results/' + file_name, 'w') as out_file:
-        tsv_writer = csv.writer(out_file, delimiter='\t')
-        tsv_writer.writerow(entete_results)
-        for l in scores:
-            tsv_writer.writerow(l)
+    print("size of augmented data set:", len(images))
+    if len(scores)!=0:
+        with open('./results/' + file_name, 'w') as out_file:
+            tsv_writer = csv.writer(out_file, delimiter='\t')
+            tsv_writer.writerow(entete_results)
+            for l in scores:
+                tsv_writer.writerow(l)
     with open('./results/' + file_images, 'w') as out_file:
         tsv_writer = csv.writer(out_file, delimiter='\t')
         tsv_writer.writerow(entete_imgs)

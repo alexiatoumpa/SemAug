@@ -467,7 +467,7 @@ def augment_cifar_images(x_test, y_test, seed_size=42, dataset='cifar10',
 def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10', 
                    data_directory_path='./', categories=[], 
                    augmentation_type=['Inpainting', 'Erasing', 'Noise'],
-                   path2graph=None, path2weights=None):
+                   path2graph=None, path2weights=None, fidelity_analysis=True):
     scores = []
     images = []
 
@@ -529,6 +529,8 @@ def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10',
 
         if dataset == 'cifar10':
             initial_caption = get_caption(label[0], categories)
+        elif dataset == 'imagenet':
+            initial_caption = 'imagenet'
         elif dataset == 'leaf':
             initial_caption = 'leaf'
         print("Initial caption: ", label)
@@ -563,34 +565,35 @@ def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10',
                     # inpaint_image = cv2.resize(inpaint_image, (height, width))
                     cv2.imwrite(aug_inpaint_categ_image_path, inpaint_image)
 
-                    # Calculate fidelity scores:
-                    # FID
-                    FID_inpaint = calculate_fid_score(initial_image_path, aug_inpaint_categ_image_path)
-                    # SSIM
-                    SSIM_inpaint = calculate_ssim_score(initial_image_path, aug_inpaint_categ_image_path)
-                    # LPIPS AlexNet
-                    LPIPS_inpaint_alex = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='alex')
-                    # LPIPS VGG
-                    LPIPS_inpaint_vgg = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='vgg')
-                    # LPIPS squeeze
-                    LPIPS_inpaint_sq = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='squeeze')
-                    # MSE
-                    MSE_inpaint = calculate_mse_score(initial_image_path, aug_inpaint_categ_image_path)
-                    # PSNR
-                    PSNR_inpaint = calculate_psnr_score(initial_image_path, aug_inpaint_categ_image_path)
-                    # VIF
-                    VIF_inpaint = calculate_vif_score(initial_image_path, aug_inpaint_categ_image_path)
-
-                    scores.append([str(id), initial_caption, aug_caption_category, 
-                                   "inpaint", MSE_inpaint, PSNR_inpaint, FID_inpaint, 
-                                   SSIM_inpaint, LPIPS_inpaint_alex, LPIPS_inpaint_vgg, 
-                                   LPIPS_inpaint_sq, VIF_inpaint,
-                                   ])
-                    
                     images.append([str(id), initial_caption, aug_caption_category, 
                                    "inpaint", initial_image_path, aug_inpaint_categ_image_path, 
                                    label, category,
                                    ])
+
+                    if fidelity_analysis:
+                        # Calculate fidelity scores:
+                        # FID
+                        FID_inpaint = calculate_fid_score(initial_image_path, aug_inpaint_categ_image_path)
+                        # SSIM
+                        SSIM_inpaint = calculate_ssim_score(initial_image_path, aug_inpaint_categ_image_path)
+                        # LPIPS AlexNet
+                        LPIPS_inpaint_alex = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='alex')
+                        # LPIPS VGG
+                        LPIPS_inpaint_vgg = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='vgg')
+                        # LPIPS squeeze
+                        LPIPS_inpaint_sq = calculate_lpips_score(initial_image_path, aug_inpaint_categ_image_path, net='squeeze')
+                        # MSE
+                        MSE_inpaint = calculate_mse_score(initial_image_path, aug_inpaint_categ_image_path)
+                        # PSNR
+                        PSNR_inpaint = calculate_psnr_score(initial_image_path, aug_inpaint_categ_image_path)
+                        # VIF
+                        VIF_inpaint = calculate_vif_score(initial_image_path, aug_inpaint_categ_image_path)
+
+                        scores.append([str(id), initial_caption, aug_caption_category, 
+                                    "inpaint", MSE_inpaint, PSNR_inpaint, FID_inpaint, 
+                                    SSIM_inpaint, LPIPS_inpaint_alex, LPIPS_inpaint_vgg, 
+                                    LPIPS_inpaint_sq, VIF_inpaint,
+                                    ])
 
                 # Erase
                 if 'Erasing' in augmentation_type:
@@ -603,33 +606,34 @@ def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10',
                     plt.axis('off')
                     plt.savefig(aug_erase_categ_image_path)
 
-                    # Calculate fidelity scores:
-                    # FID
-                    FID_erase = calculate_fid_score(initial_image_path, aug_erase_categ_image_path)
-                    # SSIM
-                    SSIM_erase = calculate_ssim_score(initial_image_path, aug_erase_categ_image_path)
-                    # LPIPS AlexNet
-                    LPIPS_erase_alex = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='alex')
-                    # LPIPS VGG
-                    LPIPS_erase_vgg = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='vgg')
-                    # LPIPS squeeze
-                    LPIPS_erase_sq = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='squeeze')
-                    # MSE
-                    MSE_erase = calculate_mse_score(initial_image_path, aug_erase_categ_image_path)
-                    # PSNR
-                    PSNR_erase = calculate_psnr_score(initial_image_path, aug_erase_categ_image_path)
-                    # VIF
-                    VIF_erase = calculate_vif_score(initial_image_path, aug_erase_categ_image_path)
-
-                    scores.append([str(id), initial_caption, aug_caption_category, 
-                                   "erase", MSE_erase, PSNR_erase, FID_erase, SSIM_erase, 
-                                   LPIPS_erase_alex, LPIPS_erase_vgg, LPIPS_erase_sq, VIF_erase,
-                                   ])
-                    
                     images.append([str(id), initial_caption, aug_caption_category, 
                                    "erase", initial_image_path, aug_erase_categ_image_path, 
                                    label, category,
                                    ])
+
+                    if fidelity_analysis:
+                        # Calculate fidelity scores:
+                        # FID
+                        FID_erase = calculate_fid_score(initial_image_path, aug_erase_categ_image_path)
+                        # SSIM
+                        SSIM_erase = calculate_ssim_score(initial_image_path, aug_erase_categ_image_path)
+                        # LPIPS AlexNet
+                        LPIPS_erase_alex = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='alex')
+                        # LPIPS VGG
+                        LPIPS_erase_vgg = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='vgg')
+                        # LPIPS squeeze
+                        LPIPS_erase_sq = calculate_lpips_score(initial_image_path, aug_erase_categ_image_path, net='squeeze')
+                        # MSE
+                        MSE_erase = calculate_mse_score(initial_image_path, aug_erase_categ_image_path)
+                        # PSNR
+                        PSNR_erase = calculate_psnr_score(initial_image_path, aug_erase_categ_image_path)
+                        # VIF
+                        VIF_erase = calculate_vif_score(initial_image_path, aug_erase_categ_image_path)
+
+                        scores.append([str(id), initial_caption, aug_caption_category, 
+                                    "erase", MSE_erase, PSNR_erase, FID_erase, SSIM_erase, 
+                                    LPIPS_erase_alex, LPIPS_erase_vgg, LPIPS_erase_sq, VIF_erase,
+                                    ])
 
                 # Noise
                 if 'Noise' in augmentation_type:
@@ -643,34 +647,35 @@ def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10',
                     # save noise image
                     cv2.imwrite(aug_noise_categ_image_path, noise_image)
 
-                    # Calculate fidelity scores:
-                    # FID
-                    FID_noise = calculate_fid_score(initial_image_path, aug_noise_categ_image_path)
-                    # SSIM
-                    SSIM_noise = calculate_ssim_score(initial_image_path, aug_noise_categ_image_path)
-                    # LPIPS AlexNet
-                    LPIPS_noise_alex = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='alex')
-                    # LPIPS VGG
-                    LPIPS_noise_vgg = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='vgg')
-                    # LPIPS squeeze
-                    LPIPS_noise_sq = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='squeeze')
-                    # MSE
-                    MSE_noise = calculate_mse_score(initial_image_path, aug_noise_categ_image_path)
-                    # PSNR
-                    PSNR_noise = calculate_psnr_score(initial_image_path, aug_noise_categ_image_path)
-                    # VIF
-                    VIF_noise = calculate_vif_score(initial_image_path, aug_noise_categ_image_path)
-
-                
-                    scores.append([str(id), initial_caption, aug_caption_category, 
-                                   "noise", MSE_noise, PSNR_noise, FID_noise, SSIM_noise, 
-                                   LPIPS_noise_alex, LPIPS_noise_vgg, LPIPS_noise_sq, VIF_noise,
-                                   ])
-                
                     images.append([str(id), initial_caption, aug_caption_category, 
                                    "noise", initial_image_path, aug_noise_categ_image_path, 
                                    label, category,
                                    ])
+
+                    if fidelity_analysis:
+                        # Calculate fidelity scores:
+                        # FID
+                        FID_noise = calculate_fid_score(initial_image_path, aug_noise_categ_image_path)
+                        # SSIM
+                        SSIM_noise = calculate_ssim_score(initial_image_path, aug_noise_categ_image_path)
+                        # LPIPS AlexNet
+                        LPIPS_noise_alex = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='alex')
+                        # LPIPS VGG
+                        LPIPS_noise_vgg = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='vgg')
+                        # LPIPS squeeze
+                        LPIPS_noise_sq = calculate_lpips_score(initial_image_path, aug_noise_categ_image_path, net='squeeze')
+                        # MSE
+                        MSE_noise = calculate_mse_score(initial_image_path, aug_noise_categ_image_path)
+                        # PSNR
+                        PSNR_noise = calculate_psnr_score(initial_image_path, aug_noise_categ_image_path)
+                        # VIF
+                        VIF_noise = calculate_vif_score(initial_image_path, aug_noise_categ_image_path)
+
+                    
+                        scores.append([str(id), initial_caption, aug_caption_category, 
+                                    "noise", MSE_noise, PSNR_noise, FID_noise, SSIM_noise, 
+                                    LPIPS_noise_alex, LPIPS_noise_vgg, LPIPS_noise_sq, VIF_noise,
+                                    ])
 
     return images, scores
 

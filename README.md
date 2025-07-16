@@ -33,6 +33,14 @@ mkdir data
 mkdir data/cifar
 mkdir data/cifar/Augmented
 ```
+5. Download ImageNet dataset:
+```bash
+cd ~/data/ImageNet/
+wget https://image-net.org/data/ILSVRC/2017/ILSVRC2017_DET_test_new.tar.gz
+tar -xvzf ILSVRC2017_DET_test_new.tar.gz
+
+wget https://image-net.org/data/ILSVRC/2017/ILSVRC2017_DET.tar.gz
+```
 
 
 ## Run code

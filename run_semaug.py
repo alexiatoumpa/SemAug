@@ -7,7 +7,7 @@ import torch
 from matplotlib import pyplot as plt
 # from tensorflow.keras.datasets import cifar10
 from utils.datasets import (load_cifar10_dataset, load_custom_dataset, 
-                            load_test_imagepaths
+                            load_test_imagepaths, load_imagenet_dataset
 )
 import csv
 import os
@@ -135,6 +135,17 @@ if __name__ == "__main__":
         # images, scores = augment_cifar_images(x_test, y_test, dataset=dataset,
         #                                 seed_size=seed_size, data_directory_path=data_directory_path, 
         #                                 categories=categories, path2graph=path2graph, path2weights=path2weights)
+    elif dataset=='imagenet':
+        categories = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 
+                    'horse', 'ship', 'truck']
+        data_directory_path = "./data/imagenet/Augmented/"
+        # Load dataset
+        dataset_path = '/home/alexiatoumpa/data/ImageNet/ILSVRC/Data/DET/test/'
+        x_test = load_imagenet_dataset(dataset_path=dataset_path)
+        y_test = [None for i in range(len(x_test))]  # Placeholder, as labels are not available in this dataset
+
+        print("x_test shape:", len(x_test))
+        print("x_test type:", type(x_test))
 
     elif dataset=='leaf':
         categories = ['yellowed leaf', 'rotten leaf', 'fungus', 'dehydrated leaf']

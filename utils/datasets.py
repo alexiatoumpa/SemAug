@@ -4,11 +4,29 @@ import cv2
 import numpy as np
 
 from tensorflow.keras.datasets import cifar10
+# import tensorflow_datasets as tfds
+import tensorflow as tf
 
 
 def load_cifar10_dataset():
     (x_train, y_train), (x_test, y_test) = cifar10.load_data()
     return (x_train, y_train), (x_test, y_test)
+
+
+def load_imagenet_dataset(dataset_path='./data/imagenet/'):
+    # file_list = tf.data.Dataset.list_files(os.path.join(dataset_path, "*.JPEG"))
+    # test_dataset = file_list.map(load_and_preprocess_imagenet_images, num_parallel_calls=tf.data.AUTOTUNE)
+    test_dataset = [os.path.join(dataset_path, fname)
+                   for fname in os.listdir(dataset_path)
+                   if fname.endswith(".JPEG")]
+    return test_dataset
+
+
+def load_and_preprocess_imagenet_images(image_path):
+    image = tf.io.read_file(image_path)
+    image = tf.image.decode_jpeg(image, channels=3)
+    return image_path, image
+
 
 def load_custom_dataset(dataset_path='', image_extensions=None):
     if image_extensions is None:

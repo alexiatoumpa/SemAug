@@ -32,6 +32,8 @@ mkdir results
 mkdir data
 mkdir data/cifar
 mkdir data/cifar/Augmented
+mkdir imagenet
+mkdir imagenet/Augmented
 ```
 5. Download ImageNet dataset:
 ```bash

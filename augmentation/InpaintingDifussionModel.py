@@ -7,14 +7,14 @@ HF_DATASETS_OFFLINE = 1
 TRANSFORMERS_OFFLINE = 1
 
 
-def Inpainting(Init_img, mask, augmented_caption):
+def Inpainting(Init_img, mask, augmented_caption, device="cpu"):
 
         access_token = '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' 
         # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         #
         # if device.type != 'cuda':
         #     raise ValueError("need to run on GPU")
-        device = "cpu" #"cuda" ##
+        # device = "cpu" #"cuda" ##
         # Old model for inpainring
         # pipe = StableDiffusionInpaintPipeline.from_pretrained(
         #     "CompVis/stable-diffusion-v1-4", revision="fp16",

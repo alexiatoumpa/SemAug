@@ -308,7 +308,7 @@ def create_mask_image(image=None, path2graph=None, path2weights=None):
 
 def create_inpaint_image(image_path='./', mask_path='./', caption='cat', device="cpu"):
     inpainted_images = Inpainting(image_path, mask_path, caption, device=device)
-    inpaint_image = inpainted_images[0]    
+    inpaint_image = inpainted_images[0]
     inpaint_image = np.array(inpaint_image)
     return inpaint_image
 

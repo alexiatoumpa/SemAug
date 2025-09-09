@@ -1,4 +1,5 @@
 from diffusers import StableDiffusionInpaintPipeline
+from diffusers import DiffusionPipeline
 
 from PIL import Image
 import torch
@@ -14,23 +15,30 @@ def Inpainting(Init_img, mask, augmented_caption, device="cpu"):
         #
         # if device.type != 'cuda':
         #     raise ValueError("need to run on GPU")
-        # device = "cpu" #"cuda" ##
-        # Old model for inpainring
-        # pipe = StableDiffusionInpaintPipeline.from_pretrained(
-        #     "CompVis/stable-diffusion-v1-4", revision="fp16",
-        #     # torch_dtype=torch.float16,
-        #     use_auth_token=access_token).to(device)
-        
+
+        # Old model for inpainting
+        # Latest from CompVis
         pipe = StableDiffusionInpaintPipeline.from_pretrained(
-              "runwayml/stable-diffusion-inpainting", #torch_dtype=torch.float16
-              )
+            "CompVis/stable-diffusion-v1-4", revision="fp16",
+            # torch_dtype=torch.float16,
+            use_auth_token=access_token)
+        # # New model for inpainting
+        # # Latest from RunwayML
+        # pipe = StableDiffusionInpaintPipeline.from_pretrained(
+        #       "runwayml/stable-diffusion-inpainting", #torch_dtype=torch.float16
+        #       )
+        # # Latest default
+        # pipe = StableDiffusionInpaintPipeline.from_pretrained(
+        #       "stable-diffusion-v1-5/stable-diffusion-inpainting", #torch_dtype=torch.float16
+        #       )
         pipe = pipe.to(device)
 
         init_image = Image.open(Init_img)#.resize((512, 512))
         mask_image = Image.open(mask)#.resize((512, 512))
 
         with torch.no_grad(): 
-            images = pipe(prompt=augmented_caption, image=init_image, mask_image=mask_image, strength=0.75).images
+            # images = pipe(prompt=augmented_caption, image=init_image, mask_image=mask_image, strength=0.75).images
+            images = pipe(prompt=augmented_caption, image=init_image, mask_image=mask_image).images
 
         return images
 

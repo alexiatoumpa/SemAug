@@ -1,11 +1,8 @@
 import numpy as np
-import argparse
-import random
-import time
-import os
-import skimage.io as io
+# import random
+# import skimage.io as io
 import matplotlib.pyplot as plt
-from PIL import Image
+# from PIL import Image
 import cv2
 
 

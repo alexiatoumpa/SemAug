@@ -136,7 +136,8 @@ if __name__ == "__main__":
                       'frog', 'horse', 'ship', 'truck']
         data_directory_path = "./data/imagenet/Augmented/"
         # Load dataset
-        dataset_path = '/home/alexiatoumpa/data/ImageNet/ILSVRC/Data/DET/test/'
+        # dataset_path = '/home/alexiatoumpa/data/ImageNet/ILSVRC/Data/DET/test/'
+        dataset_path = '/users/mmv530/scratch/data/ImageNet/ILSVRC/Data/DET/test/'
         x_test = load_imagenet_dataset(dataset_path=dataset_path)
         y_test = [None for i in range(len(x_test))]  # Placeholder, as labels are not available in this dataset
 

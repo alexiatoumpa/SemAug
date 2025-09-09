@@ -1,0 +1,8 @@
+methodology: ["Inpainting"]
+path2graph: "/home/alexiatoumpa/dev/Github/SemAug/models/frozen_inference_graph.pb"
+path2weights: "/home/alexiatoumpa/dev/Github/SemAug/models/mask_rcnn_inception_v2_coco_2018_01_28.pbtxt"
+logfile: "DataAugment.log"
+fidelity: False
+iteration: 1
+augmented_caption: "the image caption"
+device: "cpu" # "cuda" or "cpu"

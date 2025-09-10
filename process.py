@@ -490,7 +490,7 @@ def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10',
                    data_directory_path='./', categories=[], 
                    augmentation_type=['Inpainting', 'Erasing', 'Noise'],
                    path2graph=None, path2weights=None, fidelity_analysis=True,
-                   device="cpu"):
+                   device="cpu", seed_init=0):
     scores = []
     images = []
 
@@ -507,8 +507,8 @@ def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10',
         aug_noise_path = create_data_directory(data_directory_path=data_directory_path, 
                                                subdir='Noise')
     
-    id = 0 # TODO: change to the image name
-    for features, label in zip(x_test[:seed_size], y_test[:seed_size]):
+    id = seed_init
+    for features, label in zip(x_test[seed_init:seed_size], y_test[seed_init:seed_size]):
         id += 1
         print(id)
 

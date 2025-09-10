@@ -34,6 +34,9 @@ def parse_arguments():
                         choices=["imagenet","cifar10","leaf"])
     parser.add_argument("-SS", "--seed_size", default=2, help="size of initial set of seed images.", 
                         type=int)
+
+    parser.add_argument("-SI", "--seed_init", default=1, help="initial seed of images.", 
+                        type=int)
   
     args = parser.parse_args()
 
@@ -65,6 +68,7 @@ if __name__ == "__main__":
 
     dataset = args['dataset']
     seed_size = args['seed_size']
+    seed_init = args['seed_init']
 
     config = load_config(config_path='config.yaml')
 
@@ -168,7 +172,9 @@ if __name__ == "__main__":
                                     seed_size=seed_size, data_directory_path=data_directory_path, 
                                     categories=categories, augmentation_type=['Inpainting'],
                                     path2graph=path2graph, path2weights=path2weights, 
-                                    fidelity_analysis=fidelity_analysis, device=device)
+                                    fidelity_analysis=fidelity_analysis, device=device,
+                                    seed_init=seed_init,
+                                    )
 
     print("size of augmented data set:", len(images))
     if len(scores)!=0:

@@ -508,7 +508,7 @@ def augment_images(x_test, y_test, seed_size=42, dataset = 'cifar10',
                                                subdir='Noise')
     
     id = seed_init
-    for features, label in zip(x_test[seed_init:seed_size], y_test[seed_init:seed_size]):
+    for features, label in zip(x_test[seed_init:seed_init+seed_size], y_test[seed_init:seed_init+seed_size]):
         id += 1
         print(id)
 
